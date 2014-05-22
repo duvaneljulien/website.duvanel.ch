@@ -6,6 +6,9 @@ tagline: acting as a hub for duvanel.ch
 {% include JB/setup %}
 
 ## People
-Julien Duvanel's personal webpage => [here](http://julien.duvanel.ch)
+* `Julien Duvanel`'s personal webpage 
+
+	[http://julien.duvanel.ch](http://julien.duvanel.ch)
 
 
+***
