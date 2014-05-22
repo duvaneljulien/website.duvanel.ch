@@ -10,11 +10,10 @@ markdown: kramdown
 # so be sure to set them if your theme uses them.
 #
 title : duvanel.ch
-tagline: Graduate student in statistics and software developer
+tagline: Homepage
 author :
   name : Julien Duvanel
   email : julien@duvanel.ch
-  github : duvanelj
 
 # The production_url is only used when full-domain names are needed
 # such as sitemap.txt 
