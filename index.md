@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Julien  Duvanel
-tagline: add tagline
+tagline: Graduate student in statistics and software developer
 ---
 {% include JB/setup %}
 
