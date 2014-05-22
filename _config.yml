@@ -4,12 +4,13 @@ permalink: /:categories/:year/:month/:day/:title
 
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 pygments: true
+markdown: kramdown
 
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
-title : Julien Duvanel -- Homepage
-tagline: Site Tagline
+title : duvanel.ch
+tagline: Graduate student in statistics and software developer
 author :
   name : Julien Duvanel
   email : julien@duvanel.ch
