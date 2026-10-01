@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Homepage
-tagline: TBD
+title: Olivia
+tagline: Divers outils de révision
 ---
 {% include JB/setup %}
 
