@@ -6,6 +6,6 @@ tagline: TBD
 {% include JB/setup %}
 
 ## Vocabulaires
-* `1` disponible sur [Vocabulaire #1](vocabulaire_1.html)
+* `1 et 2` disponibles sur [Vocabulaire](vocabulaire.html)
 
 ***
