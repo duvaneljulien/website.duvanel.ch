@@ -7,5 +7,6 @@ tagline: Divers outils de révision
 
 ## Vocabulaires
 * `1 et 2` disponibles sur [Vocabulaire](vocabulaire.html)
+* 02.10.2026 : Conjugaison au présent des verbes "être", "avoir", "aimer", "aller"
 
 ***
