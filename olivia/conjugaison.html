@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Révisions de Conjugaison - Au Présent - v02.10.26.16h15</title>
+    <title>Révisions de Conjugaison - Au Présent</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti library for reward animations -->
@@ -56,10 +56,11 @@
                     <span id="star-count">0</span>
                 </div>
                 <div class="h-6 w-px bg-amber-200"></div>
-                <div class="text-xs text-amber-800 font-semibold">
-                    Réussites: <span id="score-count" class="text-indigo-600 font-bold">0</span>/<span id="total-count">0</span>
+                <div class="text-xs text-amber-800 font-semibold flex flex-col sm:flex-row gap-1 sm:gap-3 items-start sm:items-center">
+                    <div>Réussites : <span id="score-count" class="text-emerald-600 font-bold">0</span>/<span id="total-count">0</span></div>
+                    <div>Erreurs : <span id="error-count" class="text-rose-600 font-bold">0</span></div>
                 </div>
-                <button id="reset-score-btn" title="Réinitialiser le score" class="text-slate-400 hover:text-rose-500 transition-colors p-1.5 rounded-lg hover:bg-rose-50" aria-label="Réinitialiser le score">
+                <button id="reset-score-btn" title="Réinitialiser le score et les statistiques" class="text-slate-400 hover:text-rose-500 transition-colors p-1.5 rounded-lg hover:bg-rose-50" aria-label="Réinitialiser le score">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
             </div>
@@ -121,7 +122,7 @@
         </section>
 
         <!-- Exercise Card -->
-        <main class="bg-white rounded-3xl p-6 sm:p-10 card-shadow border border-slate-100 relative overflow-hidden min-h-[320px] flex flex-col justify-between">
+        <main class="bg-white rounded-3xl p-6 sm:p-10 card-shadow border border-slate-100 relative overflow-hidden min-h-[360px] flex flex-col justify-between">
             <!-- Badge top right -->
             <div class="flex justify-between items-center mb-6">
                 <span id="current-verb-badge" class="bg-indigo-100 text-indigo-700 font-fredoka px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
@@ -134,20 +135,20 @@
             </div>
 
             <!-- Question Prompt Area -->
-            <div class="my-auto py-4 text-center">
+            <div id="question-container" class="my-auto py-4 text-center">
                 <div class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Conjugue au présent :</div>
                 
                 <div class="text-3xl sm:text-5xl font-bold font-fredoka text-slate-800 flex flex-wrap items-center justify-center gap-3">
                     <span id="pronoun-display" class="text-indigo-600">Nous</span>
                     
                     <!-- Keyboard mode input field -->
-                    <div id="keyboard-input-container" class="inline-block relative">
+                    <div id="keyboard-input-container" class="inline-block relative hidden">
                         <input type="text" id="answer-input" autocomplete="off" placeholder="..." 
                             class="w-36 sm:w-52 text-center text-3xl sm:text-4xl font-bold font-fredoka bg-slate-50 border-3 border-indigo-200 rounded-2xl py-1 px-3 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800">
                     </div>
 
                     <!-- Paper mode underline answer placeholder -->
-                    <div id="paper-placeholder" class="hidden text-3xl sm:text-5xl font-bold border-b-4 border-dashed border-indigo-400 min-w-[120px] px-2 text-indigo-500 transition-all">
+                    <div id="paper-placeholder" class="text-3xl sm:text-5xl font-bold border-b-4 border-dashed border-indigo-400 min-w-[120px] px-2 text-indigo-500 transition-all">
                         ????
                     </div>
                 </div>
@@ -156,11 +157,28 @@
                 <div id="feedback-message" class="mt-4 text-base sm:text-lg font-bold h-8 transition-all"></div>
             </div>
 
+            <!-- Victory Screen (Hidden by default) -->
+            <div id="victory-container" class="hidden my-auto py-6 text-center flex flex-col items-center justify-center space-y-4">
+                <div class="text-6xl sm:text-7xl animate-bounce">🏆</div>
+                <h2 class="text-3xl sm:text-5xl font-bold font-fredoka text-indigo-900 leading-tight">
+                    BRAVO ! 🎉
+                </h2>
+                <div class="text-lg sm:text-2xl font-fredoka font-semibold text-emerald-700 max-w-xl mx-auto px-6 py-4 rounded-3xl bg-emerald-50 border-2 border-emerald-200 shadow-sm leading-snug">
+                    Tu peux aller jouer maintenant <br class="hidden sm:inline">(ou alors faire ce que tes parents te disent) 😊
+                </div>
+                <div class="pt-2">
+                    <button id="victory-restart-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-base sm:text-lg py-3 px-8 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center space-x-2 mx-auto">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Recommencer une série</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Action Area / Buttons -->
-            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-center">
+            <div id="action-controls-area" class="mt-6 pt-4 border-t border-slate-100 flex justify-center">
                 
                 <!-- Buttons for Keyboard Mode -->
-                <div id="keyboard-controls" class="w-full flex justify-center">
+                <div id="keyboard-controls" class="hidden w-full flex justify-center">
                     <button id="check-keyboard-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-lg py-3.5 px-8 rounded-2xl shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
                         <span>Vérifier ma réponse</span>
                         <i class="fa-solid fa-arrow-right text-sm"></i>
@@ -168,7 +186,7 @@
                 </div>
 
                 <!-- Buttons for Paper Mode -->
-                <div id="paper-controls" class="hidden w-full flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <div id="paper-controls" class="w-full flex flex-col sm:flex-row gap-3 justify-center items-center">
                     <button id="reveal-paper-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka text-lg py-3.5 px-8 rounded-2xl shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-eye"></i>
                         <span>Voir la réponse</span>
@@ -193,6 +211,53 @@
                 </button>
             </div>
         </main>
+
+        <!-- Statistics Section -->
+        <section class="mt-8 bg-white rounded-3xl p-5 sm:p-6 card-shadow border border-slate-100">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h3 class="font-fredoka font-bold text-lg text-indigo-950 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-indigo-500"></i>
+                    Statistiques détaillées
+                </h3>
+                <button id="toggle-stats-btn" class="text-indigo-600 hover:text-indigo-800 font-fredoka text-sm font-semibold flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-1.5 rounded-xl transition-all">
+                    <span>Afficher les détails</span>
+                    <i id="stats-chevron" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                </button>
+            </div>
+
+            <!-- Collapsible Stats Panel -->
+            <div id="stats-container" class="hidden mt-5 pt-4 border-t border-slate-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Correct Words / Forms -->
+                    <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-100">
+                        <h4 class="font-fredoka font-bold text-emerald-900 text-sm mb-3 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                Réussis sans erreur
+                            </span>
+                            <span id="correct-forms-count" class="bg-emerald-200 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                        </h4>
+                        <div id="correct-forms-list" class="flex flex-wrap gap-2 text-xs">
+                            <span class="text-slate-400 italic">Aucune donnée pour l'instant.</span>
+                        </div>
+                    </div>
+
+                    <!-- Forms with Errors -->
+                    <div class="bg-rose-50/70 p-4 rounded-2xl border border-rose-100">
+                        <h4 class="font-fredoka font-bold text-rose-900 text-sm mb-3 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-xmark text-rose-500"></i>
+                                À revoir (1+ erreur)
+                            </span>
+                            <span id="error-forms-count" class="bg-rose-200 text-rose-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                        </h4>
+                        <div id="error-forms-list" class="flex flex-wrap gap-2 text-xs">
+                            <span class="text-slate-400 italic">Super ! Aucune erreur enregistrée.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Conjugation Reference Drawer / Modal -->
@@ -284,65 +349,67 @@
     </footer>
 
     <script>
-        // Database of Conjugations
-        const VERB_DATA = {
+        // Database of verbs and conjugations
+        const VERBS_DATA = {
             etre: {
                 name: "Être",
-                colorClass: "bg-indigo-100 text-indigo-700",
                 forms: [
-                    { pronoun: "Je", answer: "suis" },
-                    { pronoun: "Tu", answer: "es" },
-                    { pronoun: "Il / Elle / On", answer: "est" },
-                    { pronoun: "Nous", answer: "sommes" },
-                    { pronoun: "Vous", answer: "êtes" },
-                    { pronoun: "Ils / Elles", answer: "sont" }
+                    { id: "etre_0", pronoun: "Je", answer: "suis" },
+                    { id: "etre_1", pronoun: "Tu", answer: "es" },
+                    { id: "etre_2", pronoun: "Il / Elle / On", answer: "est" },
+                    { id: "etre_3", pronoun: "Nous", answer: "sommes" },
+                    { id: "etre_4", pronoun: "Vous", answer: "êtes" },
+                    { id: "etre_5", pronoun: "Ils / Elles", answer: "sont" }
                 ]
             },
             avoir: {
                 name: "Avoir",
-                colorClass: "bg-amber-100 text-amber-800",
                 forms: [
-                    { pronoun: "J'", answer: "ai" },
-                    { pronoun: "Tu", answer: "as" },
-                    { pronoun: "Il / Elle / On", answer: "a" },
-                    { pronoun: "Nous", answer: "avons" },
-                    { pronoun: "Vous", answer: "avez" },
-                    { pronoun: "Ils / Elles", answer: "ont" }
+                    { id: "avoir_0", pronoun: "J'", answer: "ai" },
+                    { id: "avoir_1", pronoun: "Tu", answer: "as" },
+                    { id: "avoir_2", pronoun: "Il / Elle / On", answer: "a" },
+                    { id: "avoir_3", pronoun: "Nous", answer: "avons" },
+                    { id: "avoir_4", pronoun: "Vous", answer: "avez" },
+                    { id: "avoir_5", pronoun: "Ils / Elles", answer: "ont" }
                 ]
             },
             aimer: {
                 name: "Aimer",
-                colorClass: "bg-rose-100 text-rose-700",
                 forms: [
-                    { pronoun: "J'", answer: "aime" },
-                    { pronoun: "Tu", answer: "aimes" },
-                    { pronoun: "Il / Elle / On", answer: "aime" },
-                    { pronoun: "Nous", answer: "aimons" },
-                    { pronoun: "Vous", answer: "aimez" },
-                    { pronoun: "Ils / Elles", answer: "aiment" }
+                    { id: "aimer_0", pronoun: "J'", answer: "aime" },
+                    { id: "aimer_1", pronoun: "Tu", answer: "aimes" },
+                    { id: "aimer_2", pronoun: "Il / Elle / On", answer: "aime" },
+                    { id: "aimer_3", pronoun: "Nous", answer: "aimons" },
+                    { id: "aimer_4", pronoun: "Vous", answer: "aimez" },
+                    { id: "aimer_5", pronoun: "Ils / Elles", answer: "aiment" }
                 ]
             },
             aller: {
                 name: "Aller",
-                colorClass: "bg-emerald-100 text-emerald-800",
                 forms: [
-                    { pronoun: "Je", answer: "vais" },
-                    { pronoun: "Tu", answer: "vas" },
-                    { pronoun: "Il / Elle / On", answer: "va" },
-                    { pronoun: "Nous", answer: "allons" },
-                    { pronoun: "Vous", answer: "allez" },
-                    { pronoun: "Ils / Elles", answer: "vont" }
+                    { id: "aller_0", pronoun: "Je", answer: "vais" },
+                    { id: "aller_1", pronoun: "Tu", answer: "vas" },
+                    { id: "aller_2", pronoun: "Il / Elle / On", answer: "va" },
+                    { id: "aller_3", pronoun: "Nous", answer: "allons" },
+                    { id: "aller_4", pronoun: "Vous", answer: "allez" },
+                    { id: "aller_5", pronoun: "Ils / Elles", answer: "vont" }
                 ]
             }
         };
 
-        // State Management
+        // Application State
         let currentSelectedVerbKey = "all"; // "all", "etre", "avoir", "aimer", "aller"
         let currentMode = "paper"; // "paper" or "keyboard"
         let currentQuestion = null;
         let score = 0;
+        let errors = 0;
         let total = 0;
         let stars = 0;
+        
+        let completedForms = new Set(); // Keeps track of correctly answered form IDs
+
+        // Dictionary tracking statistics per verb form:
+        let statsData = {};
 
         // DOM Elements
         const verbSelectorButtons = document.querySelectorAll('.verb-btn');
@@ -354,6 +421,11 @@
         const answerInput = document.getElementById('answer-input');
         const feedbackMessage = document.getElementById('feedback-message');
         
+        const questionContainer = document.getElementById('question-container');
+        const victoryContainer = document.getElementById('victory-container');
+        const actionControlsArea = document.getElementById('action-controls-area');
+        const victoryRestartBtn = document.getElementById('victory-restart-btn');
+
         const keyboardControls = document.getElementById('keyboard-controls');
         const paperControls = document.getElementById('paper-controls');
         const revealPaperBtn = document.getElementById('reveal-paper-btn');
@@ -362,9 +434,18 @@
         const nextBtn = document.getElementById('next-btn');
 
         const scoreCountEl = document.getElementById('score-count');
+        const errorCountEl = document.getElementById('error-count');
         const totalCountEl = document.getElementById('total-count');
         const starCountEl = document.getElementById('star-count');
         const resetScoreBtn = document.getElementById('reset-score-btn');
+
+        const toggleStatsBtn = document.getElementById('toggle-stats-btn');
+        const statsContainer = document.getElementById('stats-container');
+        const statsChevron = document.getElementById('stats-chevron');
+        const correctFormsCountEl = document.getElementById('correct-forms-count');
+        const correctFormsListEl = document.getElementById('correct-forms-list');
+        const errorFormsCountEl = document.getElementById('error-forms-count');
+        const errorFormsListEl = document.getElementById('error-forms-list');
 
         const helpModal = document.getElementById('help-modal');
         const toggleHelpBtn = document.getElementById('toggle-help-btn');
@@ -374,13 +455,14 @@
         // Initialization
         window.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
+            updateUIForMode();
             loadNewQuestion();
         });
 
         function setupEventListeners() {
             // Verb Selection
             verbSelectorButtons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
+                btn.addEventListener('click', () => {
                     verbSelectorButtons.forEach(b => {
                         b.classList.remove('active', 'bg-indigo-600', 'text-white');
                         b.classList.add('bg-slate-100', 'text-slate-700');
@@ -417,6 +499,23 @@
             // Reset Score Button
             resetScoreBtn.addEventListener('click', resetScore);
 
+            // Victory Restart Button
+            victoryRestartBtn.addEventListener('click', resetScore);
+
+            // Toggle Statistics View
+            toggleStatsBtn.addEventListener('click', () => {
+                const isHidden = statsContainer.classList.contains('hidden');
+                if (isHidden) {
+                    statsContainer.classList.remove('hidden');
+                    toggleStatsBtn.querySelector('span').textContent = 'Masquer les détails';
+                    statsChevron.classList.add('rotate-180');
+                } else {
+                    statsContainer.classList.add('hidden');
+                    toggleStatsBtn.querySelector('span').textContent = 'Afficher les détails';
+                    statsChevron.classList.remove('rotate-180');
+                }
+            });
+
             // Keyboard mode submit
             checkKeyboardBtn.addEventListener('click', checkKeyboardAnswer);
             answerInput.addEventListener('keypress', (e) => {
@@ -443,100 +542,119 @@
             closeHelpBottomBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
         }
 
-        function resetScore() {
-            score = 0;
-            total = 0;
-            stars = 0;
-            scoreCountEl.textContent = '0';
-            totalCountEl.textContent = '0';
-            starCountEl.textContent = '0';
-        }
-
         function updateUIForMode() {
             if (currentMode === 'paper') {
-                keyboardContainer.classList.add('hidden');
                 paperPlaceholder.classList.remove('hidden');
-                keyboardControls.classList.add('hidden');
+                keyboardContainer.classList.add('hidden');
                 paperControls.classList.remove('hidden');
+                keyboardControls.classList.add('hidden');
             } else {
-                keyboardContainer.classList.remove('hidden');
                 paperPlaceholder.classList.add('hidden');
-                keyboardControls.classList.remove('hidden');
+                keyboardContainer.classList.remove('hidden');
                 paperControls.classList.add('hidden');
+                keyboardControls.classList.remove('hidden');
             }
+        }
+
+        function getAvailableQuestions() {
+            let pool = [];
+            const keys = (currentSelectedVerbKey === "all") 
+                ? ["etre", "avoir", "aimer", "aller"] 
+                : [currentSelectedVerbKey];
+
+            keys.forEach(vk => {
+                const verbObj = VERBS_DATA[vk];
+                if (verbObj) {
+                    verbObj.forms.forEach(form => {
+                        if (!completedForms.has(form.id)) {
+                            pool.push({
+                                id: form.id,
+                                verbKey: vk,
+                                verbName: verbObj.name,
+                                pronoun: form.pronoun,
+                                answer: form.answer
+                            });
+                        }
+                    });
+                }
+            });
+            return pool;
         }
 
         function loadNewQuestion() {
-            resetQuestionState();
+            const availableQuestions = getAvailableQuestions();
 
-            // Select Verb Key
-            let verbKey = currentSelectedVerbKey;
-            if (verbKey === 'all') {
-                const keys = Object.keys(VERB_DATA);
-                verbKey = keys[Math.floor(Math.random() * keys.length)];
+            // If no forms left to review for the current selection -> show Victory
+            if (availableQuestions.length === 0) {
+                questionContainer.classList.add('hidden');
+                actionControlsArea.classList.add('hidden');
+                victoryContainer.classList.remove('hidden');
+                triggerBigConfetti();
+                return;
             }
 
-            const verbObject = VERB_DATA[verbKey];
-            const randomForm = verbObject.forms[Math.floor(Math.random() * verbObject.forms.length)];
+            // Ensure Question area is visible and Victory screen hidden
+            questionContainer.classList.remove('hidden');
+            actionControlsArea.classList.remove('hidden');
+            victoryContainer.classList.add('hidden');
 
-            currentQuestion = {
-                verbName: verbObject.name,
-                pronoun: randomForm.pronoun,
-                answer: randomForm.answer,
-                colorClass: verbObject.colorClass
-            };
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            currentQuestion = availableQuestions[randomIndex];
 
-            // Render Prompt
-            pronounDisplay.textContent = currentQuestion.pronoun;
+            // Update UI elements
             currentVerbBadge.textContent = `Verbe : ${currentQuestion.verbName}`;
-            
-            // Adjust input width if needed
-            answerInput.value = '';
-            if (currentMode === 'keyboard') {
-                answerInput.focus();
-            }
+            pronounDisplay.textContent = currentQuestion.pronoun;
+
+            resetQuestionState();
         }
 
         function resetQuestionState() {
+            answerInput.value = '';
+            answerInput.disabled = false;
+            paperPlaceholder.textContent = '????';
             feedbackMessage.textContent = '';
             feedbackMessage.className = 'mt-4 text-base sm:text-lg font-bold h-8 transition-all';
-            paperPlaceholder.textContent = '????';
-            paperPlaceholder.className = 'text-3xl sm:text-5xl font-bold border-b-4 border-dashed border-indigo-400 min-w-[120px] px-2 text-indigo-500 transition-all';
-            
-            revealPaperBtn.classList.remove('hidden');
+
             selfEvalBtns.classList.add('hidden');
-            
+            revealPaperBtn.classList.remove('hidden');
+
             nextBtn.classList.add('hidden');
-            if (currentMode === 'keyboard') {
-                keyboardControls.classList.remove('hidden');
-            } else {
+
+            if (currentMode === 'paper') {
                 paperControls.classList.remove('hidden');
+                keyboardControls.classList.add('hidden');
+            } else {
+                keyboardControls.classList.remove('hidden');
+                paperControls.classList.add('hidden');
+                setTimeout(() => answerInput.focus(), 100);
             }
-            answerInput.disabled = false;
+        }
+
+        function revealPaperAnswer() {
+            if (!currentQuestion) return;
+            paperPlaceholder.textContent = currentQuestion.answer;
+            revealPaperBtn.classList.add('hidden');
+            selfEvalBtns.classList.remove('hidden');
         }
 
         function checkKeyboardAnswer() {
+            if (!currentQuestion) return;
+
             const userAns = answerInput.value.trim().toLowerCase();
             const correctAns = currentQuestion.answer.toLowerCase();
 
             if (!userAns) {
-                feedbackMessage.textContent = '⚠️️ Écris une réponse d\'abord !';
+                feedbackMessage.textContent = '⚠ Écris une réponse d\'abord !';
                 feedbackMessage.className = 'mt-4 text-sm font-bold text-amber-600';
                 return;
             }
 
-            total++;
-            totalCountEl.textContent = total;
+            const isCorrect = (userAns === correctAns);
+            recordAttempt(isCorrect);
 
-            if (userAns === correctAns) {
-                score++;
-                stars += 1;
-                scoreCountEl.textContent = score;
-                starCountEl.textContent = stars;
-
+            if (isCorrect) {
                 feedbackMessage.textContent = 'Bravo ! C\'est exactement ça ! 🎉';
                 feedbackMessage.className = 'mt-4 text-base sm:text-lg font-bold text-emerald-600';
-                
                 triggerConfetti();
             } else {
                 feedbackMessage.textContent = `Oups ! La bonne réponse était : "${currentQuestion.answer}"`;
@@ -549,26 +667,12 @@
             nextBtn.focus();
         }
 
-        function revealPaperAnswer() {
-            paperPlaceholder.textContent = currentQuestion.answer;
-            paperPlaceholder.className = 'text-3xl sm:text-5xl font-bold border-b-4 border-solid border-emerald-500 min-w-[120px] px-2 text-emerald-600 transition-all animate-bounce';
-            
-            revealPaperBtn.classList.add('hidden');
-            selfEvalBtns.classList.remove('hidden');
-            feedbackMessage.textContent = 'Vérifie sur ton cahier : est-ce bien écrit ?';
-            feedbackMessage.className = 'mt-4 text-sm font-bold text-indigo-600';
-        }
-
         function handlePaperSelfEval(isCorrect) {
-            total++;
-            totalCountEl.textContent = total;
+            if (!currentQuestion) return;
+
+            recordAttempt(isCorrect);
 
             if (isCorrect) {
-                score++;
-                stars += 1;
-                scoreCountEl.textContent = score;
-                starCountEl.textContent = stars;
-
                 feedbackMessage.textContent = 'Super ! Un point de plus ! ⭐';
                 feedbackMessage.className = 'mt-4 text-base sm:text-lg font-bold text-emerald-600';
                 triggerConfetti();
@@ -583,13 +687,117 @@
             nextBtn.focus();
         }
 
+        function recordAttempt(isCorrect) {
+            total++;
+            totalCountEl.textContent = total;
+
+            const key = `${currentQuestion.verbName} - ${currentQuestion.pronoun} ${currentQuestion.answer}`;
+            if (!statsData[key]) {
+                statsData[key] = {
+                    verb: currentQuestion.verbName,
+                    pronoun: currentQuestion.pronoun,
+                    answer: currentQuestion.answer,
+                    correct: 0,
+                    errors: 0
+                };
+            }
+
+            if (isCorrect) {
+                score++;
+                stars += 1;
+                statsData[key].correct++;
+                scoreCountEl.textContent = score;
+                starCountEl.textContent = stars;
+
+                // Mark form as completed so it won't be repeated
+                if (currentQuestion && currentQuestion.id) {
+                    completedForms.add(currentQuestion.id);
+                }
+            } else {
+                errors++;
+                statsData[key].errors++;
+                errorCountEl.textContent = errors;
+            }
+
+            renderStats();
+        }
+
+        function resetScore() {
+            score = 0;
+            errors = 0;
+            total = 0;
+            stars = 0;
+            statsData = {};
+            completedForms.clear(); // Reset completed words pool
+
+            scoreCountEl.textContent = '0';
+            errorCountEl.textContent = '0';
+            totalCountEl.textContent = '0';
+            starCountEl.textContent = '0';
+
+            renderStats();
+            loadNewQuestion();
+        }
+
+        function renderStats() {
+            const keys = Object.keys(statsData);
+            const correctItems = keys.filter(k => statsData[k].errors === 0 && statsData[k].correct > 0);
+            const errorItems = keys.filter(k => statsData[k].errors > 0);
+
+            correctFormsCountEl.textContent = correctItems.length;
+            errorFormsCountEl.textContent = errorItems.length;
+
+            if (correctItems.length === 0) {
+                correctFormsListEl.innerHTML = '<span class="text-slate-400 italic">Aucune donnée pour l\'instant.</span>';
+            } else {
+                correctFormsListEl.innerHTML = correctItems.map(k => {
+                    const item = statsData[k];
+                    return `<div class="bg-white px-2.5 py-1 rounded-xl border border-emerald-200 text-emerald-900 font-medium shadow-sm flex items-center gap-1.5">
+                        <span>${item.pronoun} <strong class="text-emerald-600">${item.answer}</strong></span>
+                        <span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md">(${item.verb}) ×${item.correct}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            if (errorItems.length === 0) {
+                errorFormsListEl.innerHTML = '<span class="text-slate-400 italic">Super ! Aucune erreur enregistrée.</span>';
+            } else {
+                errorFormsListEl.innerHTML = errorItems.map(k => {
+                    const item = statsData[k];
+                    return `<div class="bg-white px-2.5 py-1 rounded-xl border border-rose-200 text-rose-900 font-medium shadow-sm flex items-center gap-1.5">
+                        <span>${item.pronoun} <strong class="text-rose-600">${item.answer}</strong></span>
+                        <span class="text-[10px] text-rose-500 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md">(${item.verb}) ${item.errors} err.</span>
+                    </div>`;
+                }).join('');
+            }
+        }
+
         function triggerConfetti() {
             if (typeof confetti === 'function') {
                 confetti({
-                    particleCount: 40,
+                    particleCount: 45,
                     spread: 60,
                     origin: { y: 0.7 }
                 });
+            }
+        }
+
+        function triggerBigConfetti() {
+            if (typeof confetti === 'function') {
+                const count = 200;
+                const defaults = { origin: { y: 0.6 } };
+
+                function fire(particleRatio, opts) {
+                    confetti(Object.assign({}, defaults, opts, {
+                        particleCount: Math.floor(count * particleRatio)
+                    }));
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
             }
         }
     </script>
