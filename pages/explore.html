@@ -842,7 +842,15 @@
                                 label: function(context) {
                                     // On récupère la vraie valeur stockée (non plafonnée/non planchonnée)
                                     const realValue = context.dataset.actualData ? context.dataset.actualData[context.dataIndex] : context.raw;
-                                    let text = ` Impact : ${formatNumber(Math.round(realValue))}% du budget annuel`;
+                                    
+                                    // Récupération de la donnée physique absolue
+                                    const b = boundaries[context.dataIndex];
+                                    const isNone = currentSelection === 'none';
+                                    const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
+                                    const absVal = isNone ? b.avgValue : (selectedItem.impacts[b.id] || 0);
+                                    const prefix = isNone ? 'Moy : ' : '+';
+
+                                    let text = ` Impact : ${formatNumber(Math.round(realValue))}% (${prefix}${formatNumber(absVal)} ${b.unit})`;
                                     
                                     if (realValue > 200) {
                                         text += " (Hors échelle)";
@@ -940,7 +948,7 @@
                 }
             });
 
-            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 2 lignes)
+            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 3 lignes)
             impactChart.data.labels = boundaries.map((b, index) => {
                 const shortName = b.name
                     .replace('Changement ', '')
@@ -948,7 +956,14 @@
                     .replace('Intégrité de la ', '');
                 
                 const actualValue = Math.round(actualData[index]);
-                return [shortName, `${formatNumber(actualValue)}%`];
+                const absoluteValue = isNone ? b.avgValue : (selectedItem.impacts[b.id] || 0);
+                const prefix = isNone ? 'Moy: ' : '+';
+
+                return [
+                    shortName, 
+                    `${formatNumber(actualValue)}%`,
+                    `(${prefix}${formatNumber(absoluteValue)} ${b.unit})`
+                ];
             });
 
             // 2. Application des limites visuelles intelligentes (Compression Logarithmique)
