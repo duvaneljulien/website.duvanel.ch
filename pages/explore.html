@@ -1080,10 +1080,12 @@
             const grid = document.getElementById('boundaries-grid');
             grid.innerHTML = '';
 
-            const selectedItem = catalog.find(item => item.id === currentSelection);
+            const isNone = currentSelection === 'none';
+            const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
             
             boundaries.forEach((boundary, index) => {
-                const impact = selectedItem ? (selectedItem.impacts[boundary.id] || 0) : 0;
+                const impact = isNone ? boundary.avgValue : (selectedItem.impacts[boundary.id] || 0);
+                const prefix = isNone ? 'Moy. : ' : '+';
                 const { percent, status } = calculateStatus(impact, boundary.budget);
                 
                 // Limiter visuellement à 100% pour la barre
@@ -1124,7 +1126,7 @@
                             <div class="h-full rounded-full progress-bar ${getStatusColor(status)}" style="width: ${visualPercent}%"></div>
                         </div>
                         <div class="mt-3 flex justify-between items-center text-xs">
-                            <span class="text-slate-300 font-mono font-medium">+${formatNumber(impact)} ${boundary.unit}</span>
+                            <span class="text-slate-300 font-mono font-medium">${prefix}${formatNumber(impact)} ${boundary.unit}</span>
                             <span class="text-slate-500 group-hover:text-white transition-colors duration-300 flex items-center gap-1">Détails <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
                         </div>
                     </div>
@@ -1153,7 +1155,8 @@
         }
 
         function updateBoundariesVisuals() {
-            const selectedItem = catalog.find(item => item.id === currentSelection);
+            const isNone = currentSelection === 'none';
+            const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
             
             // Mettre à jour le graphique radar
             updateChart();
@@ -1161,7 +1164,8 @@
             const cards = document.querySelectorAll('#boundaries-grid > div');
             
             boundaries.forEach((boundary, index) => {
-                const impact = selectedItem ? (selectedItem.impacts[boundary.id] || 0) : 0;
+                const impact = isNone ? boundary.avgValue : (selectedItem.impacts[boundary.id] || 0);
+                const prefix = isNone ? 'Moy. : ' : '+';
                 const { percent, status } = calculateStatus(impact, boundary.budget);
                 const visualPercent = Math.min(percent, 100);
                 
@@ -1180,14 +1184,15 @@
 
                 // Mettre à jour le texte de l'impact brut
                 const impactText = card.querySelector('.text-slate-300.font-mono');
-                impactText.textContent = `+${formatNumber(impact)}`;
+                impactText.textContent = `${prefix}${formatNumber(impact)} ${boundary.unit}`;
             });
             
             // Re-render complet
             const grid = document.getElementById('boundaries-grid');
             grid.innerHTML = '';
             boundaries.forEach((boundary) => {
-                const imp = selectedItem ? (selectedItem.impacts[boundary.id] || 0) : 0;
+                const imp = isNone ? boundary.avgValue : (selectedItem.impacts[boundary.id] || 0);
+                const pref = isNone ? 'Moy. : ' : '+';
                 const { percent, status } = calculateStatus(imp, boundary.budget);
                 const visualPercent = Math.min(percent, 100);
                 
@@ -1221,7 +1226,7 @@
                             <div class="h-full rounded-full progress-bar ${getStatusColor(status)}" style="width: ${visualPercent}%"></div>
                         </div>
                         <div class="mt-3 flex justify-between items-center text-xs">
-                            <span class="text-slate-300 font-mono font-medium">+${formatNumber(imp)} ${boundary.unit}</span>
+                            <span class="text-slate-300 font-mono font-medium">${pref}${formatNumber(imp)} ${boundary.unit}</span>
                             <span class="text-slate-500 group-hover:text-white transition-colors duration-300 flex items-center gap-1">Détails <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
                         </div>
                     </div>
@@ -1237,6 +1242,9 @@
             const backdrop = document.getElementById('modal-backdrop');
             const content = document.getElementById('modal-content');
 
+            const isNone = currentSelection === 'none';
+            const prefix = isNone ? 'Moy. : ' : '+';
+
             // Remplir les données
             document.getElementById('modal-title').textContent = boundary.name;
             document.getElementById('modal-icon').className = `fa-solid ${boundary.icon}`;
@@ -1248,7 +1256,7 @@
             document.getElementById('modal-avg').textContent = boundary.avgConsumption;
             document.getElementById('modal-budget').textContent = boundary.budget === 0 ? `0 ${boundary.unit}` : `${formatNumber(boundary.budget)} ${boundary.unit}`;
             
-            document.getElementById('modal-impact').textContent = `+${formatNumber(impact)} ${boundary.unit}`;
+            document.getElementById('modal-impact').textContent = `${prefix}${formatNumber(impact)} ${boundary.unit}`;
 
             // Gestion de l'affichage de l'explication (Pourquoi cet impact ?)
             const reasonContainer = document.getElementById('modal-reason-container');
