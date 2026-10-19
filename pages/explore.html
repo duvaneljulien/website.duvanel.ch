@@ -689,6 +689,93 @@
         let currentSelection = 'none';
         let impactChart = null; // Instance du graphique Radar
 
+        // --- PLUGIN CUSTOM : Anneau de Budget & Zones ---
+        const planetaryRingsPlugin = {
+            id: 'planetaryRings',
+            beforeDraw: (chart) => {
+                const r = chart.scales.r;
+                if (!r) return;
+                const { ctx } = chart;
+                const x = r.xCenter;
+                const y = r.yCenter;
+
+                const radius100 = r.getDistanceFromCenterForValue(100);
+                if (radius100 <= 0) return;
+
+                ctx.save();
+                
+                // 1. Fond vert de la zone de sécurité (0% à 100%)
+                ctx.beginPath();
+                ctx.arc(x, y, radius100, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.12)'; 
+                ctx.fill();
+
+                // 2. Anneau délimitant le budget (100%)
+                ctx.beginPath();
+                ctx.arc(x, y, radius100, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#10b981'; // Vert émeraude
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+
+                // 3. Étiquette "Budget Annuel (100%)"
+                ctx.font = '600 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const text = 'Budget Annuel (100%)';
+                const textWidth = ctx.measureText(text).width;
+                
+                // Petit fond sombre/transparent pour que le texte soit lisible sur les lignes de grille
+                ctx.fillStyle = 'rgba(11, 17, 32, 0.8)';
+                ctx.fillRect(x - textWidth/2 - 4, y - radius100 - 10, textWidth + 8, 16);
+                
+                ctx.fillStyle = '#34d399'; // Texte Vert clair
+                ctx.fillText(text, x, y - radius100 - 2);
+                
+                ctx.restore();
+            }
+        };
+
+        // --- GÉNÉRATEUR DE DÉGRADÉ RADIAL ---
+        function getWedgeGradient(context) {
+            const chart = context.chart;
+            const { ctx, chartArea, scales } = chart;
+            if (!chartArea || !scales.r) return 'rgba(56, 189, 248, 0.6)';
+            
+            const r = scales.r;
+            const x = r.xCenter;
+            const y = r.yCenter;
+            
+            // La limite max de notre échelle visuelle actuelle
+            const maxRadius = r.getDistanceFromCenterForValue(r.max);
+            const radius100 = r.getDistanceFromCenterForValue(100);
+            
+            if (!maxRadius || maxRadius <= 0) return 'rgba(56, 189, 248, 0.6)';
+
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, maxRadius);
+            
+            // Où tombe la limite de 100% sur le dégradé total (ratio de 0 à 1)
+            let safeStop = radius100 / maxRadius;
+            safeStop = Math.max(0, Math.min(1, safeStop)); 
+            
+            // Vert pour tout l'espace sécurisé (0 à 100%)
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.9)'); 
+            gradient.addColorStop(Math.max(0, safeStop - 0.02), 'rgba(16, 185, 129, 0.6)'); 
+            
+            // Si le graphique s'étend au-delà de 100%
+            if (safeStop < 1) {
+                // Zone d'incertitude (Jaune/Orange) juste après la limite
+                gradient.addColorStop(safeStop, 'rgba(245, 158, 11, 0.8)');
+                
+                // Zone de haut risque (Rouge)
+                gradient.addColorStop(Math.min(1, safeStop + 0.15), 'rgba(239, 68, 68, 0.8)');
+                gradient.addColorStop(1, 'rgba(127, 29, 29, 0.9)');
+            }
+            
+            return gradient;
+        }
+
         // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             populateCatalog();
@@ -712,7 +799,7 @@
             Chart.defaults.color = '#94a3b8';
 
             impactChart = new Chart(ctx, {
-                type: 'radar',
+                type: 'polarArea', // Changement : Graphique "Wedge and Ring"
                 data: {
                     labels: labels,
                     datasets: [] // Rempli dynamiquement
@@ -720,40 +807,60 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        // On augmente significativement le padding gauche/droite pour éviter que le texte ne soit rogné
+                        padding: { top: 30, bottom: 30, left: 45, right: 45 } 
+                    },
                     scales: {
                         r: {
                             angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                circular: true // Force les anneaux circulaires
+                            },
                             pointLabels: { 
+                                display: true,
                                 color: '#e2e8f0', 
-                                font: { size: 10, weight: '600' }
+                                font: { size: 11, weight: '600' }, // Légèrement plus grand pour la lisibilité
+                                padding: 12
                             },
                             ticks: { 
-                                display: false, // On cache l'échelle chiffrée
+                                display: false, // On cache les chiffres de l'échelle par défaut
                                 stepSize: 100 
                             },
-                            suggestedMin: 0
+                            min: 0,
+                            max: 300 // Valeur par défaut, gérée dynamiquement
                         }
                     },
                     plugins: {
                         legend: { 
-                            position: 'bottom',
-                            labels: { color: '#f8fafc', padding: 20, usePointStyle: true }
+                            display: false // Inutile en polarArea avec pointLabels
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
                             titleColor: '#38bdf8',
                             bodyColor: '#f8fafc',
-                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderColor: 'rgba(255,255,255,0.15)',
                             borderWidth: 1,
+                            padding: 12,
                             callbacks: {
                                 label: function(context) {
-                                    return ` ${context.dataset.label}: ${Math.round(context.raw)}% du budget`;
+                                    // On récupère la vraie valeur stockée (non plafonnée/non planchonnée)
+                                    const realValue = context.dataset.actualData ? context.dataset.actualData[context.dataIndex] : context.raw;
+                                    let text = ` Impact : ${formatNumber(Math.round(realValue))}% du budget annuel`;
+                                    
+                                    if (realValue > 200) {
+                                        text += " (Hors échelle)";
+                                    } else if (realValue > 0 && realValue < 5) {
+                                        text += " (Valeur très faible)";
+                                    }
+                                    return text;
                                 }
                             }
                         }
                     }
-                }
+                },
+                plugins: [planetaryRingsPlugin] // Injection du plugin personnalisé
             });
             
             updateChart(); // Effectuer le premier rendu
@@ -765,11 +872,8 @@
             const isNone = currentSelection === 'none';
             const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
             
-            // Dataset 1 : L'espace sécurisé (Budget = 100%)
-            const limitData = boundaries.map(() => 100);
-            
-            // Dataset 2 : Données variables (Moyenne Européenne ou Scénario)
-            const currentData = boundaries.map(b => {
+            // 1. Calcul des pourcentages réels
+            const actualData = boundaries.map(b => {
                 if (isNone) {
                     return (b.avgValue / b.budget) * 100;
                 } else {
@@ -778,45 +882,126 @@
                 }
             });
 
-            // Stylisation conditionnelle
-            const dataLabel = isNone ? 'Dépassement Moyen (Moyenne EU/CH)' : `Impact : ${selectedItem.name}`;
-            const dataColor = isNone ? 'rgba(244, 63, 94, 0.4)' : 'rgba(56, 189, 248, 0.4)'; // Rouge vs Bleu
-            const dataBorder = isNone ? '#f43f5e' : '#38bdf8';
+            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 2 lignes)
+            impactChart.data.labels = boundaries.map((b, index) => {
+                const shortName = b.name
+                    .replace('Changement ', '')
+                    .replace('Utilisation de l\'', '')
+                    .replace('Intégrité de la ', '');
+                
+                const actualValue = Math.round(actualData[index]);
+                // Chart.js interprète un tableau de chaînes comme un texte sur plusieurs lignes !
+                return [shortName, `${formatNumber(actualValue)}%`];
+            });
+
+            // 2. Application des limites visuelles (min 10% si non nul, max 200%)
+            const visualData = actualData.map(val => {
+                if (val === 0) return 0;
+                if (val < 10) return 10;
+                if (val > 200) return 200;
+                return val;
+            });
+
+            const maxVisualValue = Math.max(...visualData);
+            
+            // Cadrage de l'échelle visuelle :
+            // Toujours au minimum 120% pour bien voir l'anneau du budget.
+            // Plafonné strictement à 200% maximum.
+            const visualScaleMax = Math.max(120, Math.min(200, maxVisualValue + 20)); 
+            
+            // Si pas de scénario (moyennes globales élevées), on limite la vue au max (200).
+            impactChart.options.scales.r.max = isNone ? 200 : visualScaleMax;
 
             impactChart.data.datasets = [
                 {
-                    label: 'Budget Soutenable (100%)',
-                    data: limitData,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emeraude transparent (Safe space)
-                    borderColor: '#10b981',
+                    data: visualData,
+                    actualData: actualData, // On stocke les vraies valeurs pour l'infobulle
+                    backgroundColor: function(context) {
+                        return getWedgeGradient(context); // Application du dégradé selon le rayon
+                    },
+                    borderColor: 'rgba(2, 6, 23, 0.8)', // Bordure sombre pour séparer les quartiers
                     borderWidth: 2,
-                    pointRadius: 0,
-                    borderDash: [5, 5]
-                },
-                {
-                    label: dataLabel,
-                    data: currentData,
-                    backgroundColor: dataColor,
-                    borderColor: dataBorder,
-                    borderWidth: 2,
-                    pointBackgroundColor: dataBorder,
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: dataBorder
+                    hoverBorderColor: '#fff',
+                    hoverBorderWidth: 2
                 }
             ];
 
-            // Pour éviter que l'échelle n'écrase le centre vert en cas de valeurs immenses, 
-            // on limite l'axe max à 800% (les points au-delà colleront simplement au bord)
-            const maxDataValue = Math.max(...currentData);
+            impactChart.update();
+        }
+
+        function updateChart() {
+            if (!impactChart) return;
+
+            const isNone = currentSelection === 'none';
+            const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
             
-            if (isNone) {
-                // Sans scénario sélectionné, on bloque strictement l'échelle à 110% du budget
-                impactChart.options.scales.r.max = 110; 
-            } else {
-                // Avec scénario, on ajuste dynamiquement mais on garde un minimum de 120% pour la lisibilité
-                impactChart.options.scales.r.max = Math.max(maxDataValue, 120); 
-            }
+            // 1. Calcul des pourcentages réels
+            const actualData = boundaries.map(b => {
+                if (isNone) {
+                    return (b.avgValue / b.budget) * 100;
+                } else {
+                    const impact = selectedItem.impacts[b.id] || 0;
+                    return (impact / b.budget) * 100;
+                }
+            });
+
+            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 2 lignes)
+            impactChart.data.labels = boundaries.map((b, index) => {
+                const shortName = b.name
+                    .replace('Changement ', '')
+                    .replace('Utilisation de l\'', '')
+                    .replace('Intégrité de la ', '');
+                
+                const actualValue = Math.round(actualData[index]);
+                return [shortName, `${formatNumber(actualValue)}%`];
+            });
+
+            // 2. Application des limites visuelles intelligentes (Compression Logarithmique)
+            const maxActual = Math.max(...actualData);
+            const THRESHOLD_LINEAR = 120; // Jusqu'à 120%, l'échelle est strictement proportionnelle
+            const VISUAL_MAX = 200; // Plafond visuel absolu
+
+            const visualData = actualData.map(val => {
+                if (val === 0) return 0;
+                if (val < 5) return 5; // Plancher visuel pour les très petites valeurs
+                
+                if (maxActual <= VISUAL_MAX) {
+                    // Si aucune valeur ne dépasse 200%, on utilise les vraies proportions
+                    return Math.min(val, VISUAL_MAX);
+                } else {
+                    // S'il y a des valeurs extrêmes, on compresse logarithmiquement tout ce qui dépasse 120%
+                    if (val <= THRESHOLD_LINEAR) return val; // Sous 120%, on ne touche à rien
+                    
+                    // Calcul du ratio logarithmique
+                    const logVal = Math.log(val / THRESHOLD_LINEAR);
+                    const logMax = Math.log(maxActual / THRESHOLD_LINEAR);
+                    
+                    // On répartit la valeur dans l'espace visuel restant entre 120% et 200%
+                    return THRESHOLD_LINEAR + (VISUAL_MAX - THRESHOLD_LINEAR) * (logVal / logMax);
+                }
+            });
+
+            const maxVisualValue = Math.max(...visualData);
+            
+            // Cadrage de l'échelle visuelle :
+            const visualScaleMax = Math.max(120, Math.min(200, maxVisualValue + 20)); 
+            
+            // Si pas de scénario, on limite la vue au max (200).
+            impactChart.options.scales.r.max = isNone ? 200 : visualScaleMax;
+
+            impactChart.data.datasets = [
+                {
+                    data: visualData,
+                    actualData: actualData, // On stocke les vraies valeurs pour l'infobulle
+                    backgroundColor: function(context) {
+                        return getWedgeGradient(context); // Application du dégradé selon le rayon
+                    },
+                    borderColor: 'rgba(2, 6, 23, 0.8)', // Bordure sombre pour séparer les quartiers
+                    borderWidth: 2,
+                    hoverBorderColor: '#fff',
+                    hoverBorderWidth: 2
+                }
+            ];
 
             impactChart.update();
         }
