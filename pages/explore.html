@@ -121,8 +121,16 @@
 
         <!-- Zone du Graphique Radar -->
         <div class="w-full max-w-3xl mx-auto mt-10 mb-4 relative z-20 animate-fade-in">
-            <div class="glass-card rounded-2xl p-4 md:p-6 aspect-square md:aspect-[2/1] flex items-center justify-center relative">
-                <canvas id="impactRadarChart"></canvas>
+            <div class="glass-card rounded-2xl p-4 md:p-6 flex flex-col items-center justify-center relative">
+                <div class="w-full aspect-square md:aspect-[2/1] relative">
+                    <canvas id="impactRadarChart"></canvas>
+                </div>
+                
+                <!-- Légende explicative du cercle vert ajoutée ici -->
+                <div class="mt-4 md:mt-2 flex items-center justify-center text-xs md:text-sm text-slate-300 bg-slate-900/60 px-4 py-2.5 rounded-full border border-slate-700/50 shadow-inner">
+                    <div class="w-4 h-4 rounded-full border-[1.5px] border-dashed border-emerald-500 bg-emerald-500/20 mr-2.5"></div>
+                    <span>Le cercle vert en pointillés délimite votre <strong class="text-emerald-400 tracking-wide">Budget Annuel (100%)</strong></span>
+                </div>
             </div>
         </div>
 
@@ -718,20 +726,7 @@
                 ctx.setLineDash([4, 4]);
                 ctx.stroke();
 
-                // 3. Étiquette "Budget Annuel (100%)"
-                ctx.font = '600 11px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                const text = 'Budget Annuel (100%)';
-                const textWidth = ctx.measureText(text).width;
-                
-                // Petit fond sombre/transparent pour que le texte soit lisible sur les lignes de grille
-                ctx.fillStyle = 'rgba(11, 17, 32, 0.8)';
-                ctx.fillRect(x - textWidth/2 - 4, y - radius100 - 10, textWidth + 8, 16);
-                
-                ctx.fillStyle = '#34d399'; // Texte Vert clair
-                ctx.fillText(text, x, y - radius100 - 2);
+                // (Le texte "Budget Annuel" a été supprimé d'ici et remplacé par la légende HTML pour une meilleure lisibilité)
                 
                 ctx.restore();
             }
