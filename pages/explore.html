@@ -122,7 +122,7 @@
         <!-- Zone du Graphique Radar -->
         <div class="w-full max-w-3xl mx-auto mt-10 mb-4 relative z-20 animate-fade-in">
             <div class="glass-card rounded-2xl p-4 md:p-6 flex flex-col items-center justify-center relative">
-                <div class="w-full aspect-square md:aspect-[2/1] relative">
+                <div class="w-full aspect-square md:aspect-[2/1] min-h-[380px] relative">
                     <canvas id="impactRadarChart"></canvas>
                 </div>
                 
@@ -220,6 +220,7 @@
             {
                 id: 'climate',
                 name: 'Changement climatique',
+                shortName: 'Climat',
                 unit: 'kg CO₂eq',
                 budget: 2000,
                 globalBudget: '16 000 000 kt CO₂',
@@ -234,6 +235,7 @@
             {
                 id: 'biosphere',
                 name: 'Intégrité de la biosphère',
+                shortName: 'Biosphère',
                 unit: 'm² impactés',
                 budget: 500,
                 globalBudget: '< 10 ext./an',
@@ -248,6 +250,7 @@
             {
                 id: 'land',
                 name: 'Changement d\'usage des sols',
+                shortName: 'Usage des sols',
                 unit: 'm² artificialisés',
                 budget: 150,
                 globalBudget: '75% forêts',
@@ -262,8 +265,9 @@
             {
                 id: 'water',
                 name: 'Utilisation de l\'eau douce',
+                shortName: 'Eau douce',
                 unit: 'm³ (Eau bleue)',
-                budget: 500, // Conversion en m³ pour éviter les chiffres à 6 zéros
+                budget: 500, 
                 globalBudget: '4 000 km³ / an',
                 avgConsumption: '1 200 m³',
                 avgValue: 1200,
@@ -276,6 +280,7 @@
             {
                 id: 'biogeo',
                 name: 'Flux biogéochimiques',
+                shortName: 'Biogéochimie',
                 unit: 'kg Azote (N)',
                 budget: 9,
                 globalBudget: '62 000 kt N',
@@ -290,6 +295,7 @@
             {
                 id: 'ocean_acid',
                 name: 'Acidification des océans',
+                shortName: 'Acidification océans',
                 unit: 'kg CO₂eq absorbés',
                 budget: 2000,
                 globalBudget: '≥ 80% saturation',
@@ -304,6 +310,7 @@
             {
                 id: 'aerosols',
                 name: 'Charge en aérosols',
+                shortName: 'Aérosols',
                 unit: 'kg PM2.5',
                 budget: 15,
                 globalBudget: 'Variable locale',
@@ -318,8 +325,9 @@
             {
                 id: 'ozone',
                 name: 'Ozone stratosphérique',
+                shortName: 'Ozone',
                 unit: 'g CFC-11eq',
-                budget: 10, // Budget de tolérance pour une échelle mathématique visible
+                budget: 10,
                 globalBudget: '0 g (Équilibre)',
                 avgConsumption: '20 g CFC-11eq',
                 avgValue: 20,
@@ -332,8 +340,9 @@
             {
                 id: 'novel',
                 name: 'Entités nouvelles',
+                shortName: 'Entités nouvelles',
                 unit: 'g Plastiques/Chimie',
-                budget: 100, // Budget de transition strict au lieu d'un zéro absolu pour l'échelle
+                budget: 100,
                 globalBudget: 'Cible 0 g',
                 avgConsumption: '> 5 000 g',
                 avgValue: 5000,
@@ -781,55 +790,51 @@
 
         function initChart() {
             const ctx = document.getElementById('impactRadarChart').getContext('2d');
-            
-            // Labels raccourcis pour plus de lisibilité sur le graphique
-            const labels = boundaries.map(b => b.name
-                .replace('Changement ', '')
-                .replace('Utilisation de l\'', '')
-                .replace('Intégrité de la ', '')
-            );
+            const isMobile = window.innerWidth < 768;
             
             // Paramétrage global pour forcer la police
             Chart.defaults.font.family = 'Inter';
             Chart.defaults.color = '#94a3b8';
 
             impactChart = new Chart(ctx, {
-                type: 'polarArea', // Changement : Graphique "Wedge and Ring"
+                type: 'polarArea', 
                 data: {
-                    labels: labels,
-                    datasets: [] // Rempli dynamiquement
+                    labels: boundaries.map(b => b.shortName),
+                    datasets: [] 
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        // On augmente significativement le padding gauche/droite pour éviter que le texte ne soit rogné
-                        padding: { top: 30, bottom: 30, left: 45, right: 45 } 
+                        padding: isMobile ? { top: 15, bottom: 15, left: 10, right: 10 } : { top: 30, bottom: 30, left: 45, right: 45 } 
                     },
                     scales: {
                         r: {
                             angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                             grid: { 
                                 color: 'rgba(255, 255, 255, 0.05)',
-                                circular: true // Force les anneaux circulaires
+                                circular: true 
                             },
                             pointLabels: { 
                                 display: true,
-                                color: '#e2e8f0', 
-                                font: { size: 11, weight: '600' }, // Légèrement plus grand pour la lisibilité
-                                padding: 12
+                                color: '#f8fafc', // Texte bien blanc
+                                font: { size: isMobile ? 10 : 11, weight: '600', family: 'Inter' },
+                                padding: isMobile ? 6 : 12,
+                                backdropColor: 'rgba(15, 23, 42, 0.85)', // Fond sombre semi-transparent derrière le texte
+                                backdropPadding: { x: 6, y: 4 },
+                                borderRadius: 6 // Bords arrondis pour le fond du texte
                             },
                             ticks: { 
-                                display: false, // On cache les chiffres de l'échelle par défaut
+                                display: false, 
                                 stepSize: 100 
                             },
                             min: 0,
-                            max: 300 // Valeur par défaut, gérée dynamiquement
+                            max: 300 
                         }
                     },
                     plugins: {
                         legend: { 
-                            display: false // Inutile en polarArea avec pointLabels
+                            display: false 
                         },
                         tooltip: {
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
@@ -840,17 +845,14 @@
                             padding: 12,
                             callbacks: {
                                 label: function(context) {
-                                    // On récupère la vraie valeur stockée (non plafonnée/non planchonnée)
                                     const realValue = context.dataset.actualData ? context.dataset.actualData[context.dataIndex] : context.raw;
-                                    
-                                    // Récupération de la donnée physique absolue
                                     const b = boundaries[context.dataIndex];
                                     const isNone = currentSelection === 'none';
                                     const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
                                     const absVal = isNone ? b.avgValue : (selectedItem.impacts[b.id] || 0);
                                     const prefix = isNone ? 'Moy : ' : '+';
 
-                                    let text = ` Impact : ${formatNumber(Math.round(realValue))}% (${prefix}${formatNumber(absVal)} ${b.unit})`;
+                                    let text = ` Conso. Budget Annuel : ${formatNumber(Math.round(realValue))}% (${prefix}${formatNumber(absVal)} ${b.unit})`;
                                     
                                     if (realValue > 200) {
                                         text += " (Hors échelle)";
@@ -863,10 +865,10 @@
                         }
                     }
                 },
-                plugins: [planetaryRingsPlugin] // Injection du plugin personnalisé
+                plugins: [planetaryRingsPlugin] 
             });
             
-            updateChart(); // Effectuer le premier rendu
+            updateChart(); 
         }
 
         function updateChart() {
@@ -874,6 +876,7 @@
 
             const isNone = currentSelection === 'none';
             const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
+            const isMobile = window.innerWidth < 768;
             
             // 1. Calcul des pourcentages réels
             const actualData = boundaries.map(b => {
@@ -885,85 +888,25 @@
                 }
             });
 
-            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 2 lignes)
+            // Mettre à jour dynamiquement les labels
             impactChart.data.labels = boundaries.map((b, index) => {
-                const shortName = b.name
-                    .replace('Changement ', '')
-                    .replace('Utilisation de l\'', '')
-                    .replace('Intégrité de la ', '');
-                
-                const actualValue = Math.round(actualData[index]);
-                // Chart.js interprète un tableau de chaînes comme un texte sur plusieurs lignes !
-                return [shortName, `${formatNumber(actualValue)}%`];
-            });
-
-            // 2. Application des limites visuelles (min 10% si non nul, max 200%)
-            const visualData = actualData.map(val => {
-                if (val === 0) return 0;
-                if (val < 10) return 10;
-                if (val > 200) return 200;
-                return val;
-            });
-
-            const maxVisualValue = Math.max(...visualData);
-            
-            // Cadrage de l'échelle visuelle :
-            // Toujours au minimum 120% pour bien voir l'anneau du budget.
-            // Plafonné strictement à 200% maximum.
-            const visualScaleMax = Math.max(120, Math.min(200, maxVisualValue + 20)); 
-            
-            // Si pas de scénario (moyennes globales élevées), on limite la vue au max (200).
-            impactChart.options.scales.r.max = isNone ? 200 : visualScaleMax;
-
-            impactChart.data.datasets = [
-                {
-                    data: visualData,
-                    actualData: actualData, // On stocke les vraies valeurs pour l'infobulle
-                    backgroundColor: function(context) {
-                        return getWedgeGradient(context); // Application du dégradé selon le rayon
-                    },
-                    borderColor: 'rgba(2, 6, 23, 0.8)', // Bordure sombre pour séparer les quartiers
-                    borderWidth: 2,
-                    hoverBorderColor: '#fff',
-                    hoverBorderWidth: 2
-                }
-            ];
-
-            impactChart.update();
-        }
-
-        function updateChart() {
-            if (!impactChart) return;
-
-            const isNone = currentSelection === 'none';
-            const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
-            
-            // 1. Calcul des pourcentages réels
-            const actualData = boundaries.map(b => {
-                if (isNone) {
-                    return (b.avgValue / b.budget) * 100;
-                } else {
-                    const impact = selectedItem.impacts[b.id] || 0;
-                    return (impact / b.budget) * 100;
-                }
-            });
-
-            // Mettre à jour dynamiquement les labels pour inclure la valeur (Texte sur 3 lignes)
-            impactChart.data.labels = boundaries.map((b, index) => {
-                const shortName = b.name
-                    .replace('Changement ', '')
-                    .replace('Utilisation de l\'', '')
-                    .replace('Intégrité de la ', '');
-                
                 const actualValue = Math.round(actualData[index]);
                 const absoluteValue = isNone ? b.avgValue : (selectedItem.impacts[b.id] || 0);
                 const prefix = isNone ? 'Moy: ' : '+';
 
-                return [
-                    shortName, 
-                    `${formatNumber(actualValue)}%`,
-                    `(${prefix}${formatNumber(absoluteValue)} ${b.unit})`
-                ];
+                // Ligne 1 : Le nom formaté
+                const nameLine = b.shortName;
+                // Ligne 2 : La valeur concrète en premier
+                const valueLine = `${prefix}${formatNumber(absoluteValue)} ${b.unit}`;
+                // Ligne 3 : Le pourcentage
+                const percentLine = `(${formatNumber(actualValue)}%)`;
+
+                if (isMobile) {
+                    // Sur mobile, on regroupe la valeur et le pourcentage sur la 2ème ligne pour gagner de la place
+                    return [nameLine, `${valueLine} ${percentLine}`];
+                } else {
+                    return [nameLine, valueLine, percentLine];
+                }
             });
 
             // 2. Application des limites visuelles intelligentes (Compression Logarithmique)
@@ -1141,16 +1084,26 @@
             const select = document.getElementById('catalog-select');
             select.addEventListener('change', (e) => {
                 currentSelection = e.target.value;
-                // Mettre à jour l'UI sans recréer le DOM complet pour garder les transitions CSS
                 updateBoundariesVisuals();
             });
 
             document.getElementById('close-modal').addEventListener('click', closeModal);
             document.getElementById('modal-backdrop').addEventListener('click', closeModal);
             
-            // Fermer avec Echap
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeModal();
+            });
+
+            window.addEventListener('resize', () => {
+                if (impactChart) {
+                    const isMobile = window.innerWidth < 768;
+                    impactChart.options.layout.padding = isMobile 
+                        ? { top: 15, bottom: 15, left: 10, right: 10 } 
+                        : { top: 30, bottom: 30, left: 45, right: 45 };
+                    impactChart.options.scales.r.pointLabels.font.size = isMobile ? 10 : 11;
+                    impactChart.options.scales.r.pointLabels.padding = isMobile ? 6 : 12;
+                    updateChart(); // Rafraîchit les labels
+                }
             });
         }
 
