@@ -113,10 +113,17 @@
             <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400">
                 Les 9 Limites Planétaires
             </h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-                Ce simulateur traduit les seuils biophysiques critiques de notre planète en un <strong class="text-white">budget individuel annuel</strong>. 
-                Sélectionnez une action ou un produit pour mesurer instantanément son impact sur votre allocation soutenable.
+            
+            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed mb-4">
+                Ce simulateur traduit les seuils biophysiques critiques de notre planète en un <strong class="text-white">budget individuel annuel</strong>.
             </p>
+
+            <div id="dynamic-intro" class="max-w-2xl mx-auto p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-sm md:text-base text-blue-100/90 leading-relaxed shadow-inner transition-colors duration-300">
+                <i class="fa-solid fa-circle-info mr-2 text-blue-400"></i>
+                <span id="intro-text">
+                    <strong>Vue par défaut :</strong> Vous observez l'<strong>empreinte annuelle moyenne d'un citoyen européen (UE/CH)</strong>, qui dépasse largement l'allocation soutenable sur plusieurs limites. Sélectionnez une action ci-dessous pour voir sa propre consommation.
+                </span>
+            </div>
         </div>
 
         <!-- Zone du Graphique Radar -->
@@ -806,23 +813,28 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        padding: isMobile ? { top: 15, bottom: 15, left: 10, right: 10 } : { top: 30, bottom: 30, left: 45, right: 45 } 
+                        padding: isMobile ? { top: 20, bottom: 20, left: 15, right: 15 } : { top: 30, bottom: 30, left: 45, right: 45 } 
                     },
                     scales: {
                         r: {
-                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            angleLines: { 
+                                display: true,
+                                color: 'rgba(255, 255, 255, 0.4)',
+                                lineWidth: 1.5
+                            },
                             grid: { 
-                                color: 'rgba(255, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.1)',
                                 circular: true 
                             },
                             pointLabels: { 
                                 display: true,
-                                color: '#f8fafc', // Texte bien blanc
-                                font: { size: isMobile ? 10 : 11, weight: '600', family: 'Inter' },
-                                padding: isMobile ? 6 : 12,
-                                backdropColor: 'rgba(15, 23, 42, 0.85)', // Fond sombre semi-transparent derrière le texte
-                                backdropPadding: { x: 6, y: 4 },
-                                borderRadius: 6 // Bords arrondis pour le fond du texte
+                                centerPointLabels: true, /* CENTRE PARFAITEMENT LE LABEL EN FACE DE SA LIMITE */
+                                color: '#f8fafc', 
+                                font: { size: isMobile ? 9 : 11, weight: '600', family: 'Inter', lineHeight: 1.3 },
+                                padding: isMobile ? 8 : 12,
+                                backdropColor: 'rgba(2, 6, 23, 0.95)', /* Fond bleu très sombre quasi-opaque pour un contraste parfait */
+                                backdropPadding: { x: 8, y: 6 },
+                                borderRadius: 8 
                             },
                             ticks: { 
                                 display: false, 
@@ -902,8 +914,13 @@
                 const percentLine = `(${formatNumber(actualValue)}%)`;
 
                 if (isMobile) {
-                    // Sur mobile, on regroupe la valeur et le pourcentage sur la 2ème ligne pour gagner de la place
-                    return [nameLine, `${valueLine} ${percentLine}`];
+                    // Nettoyage intelligent des mots longs sur mobile pour affiner les boîtes de texte
+                    const shortUnit = b.unit.replace(' absorbés', '').replace(' impactés', '').replace(' artificialisés', '');
+                    return [
+                        nameLine, 
+                        `${prefix}${formatNumber(absoluteValue)} ${shortUnit}`, 
+                        percentLine
+                    ];
                 } else {
                     return [nameLine, valueLine, percentLine];
                 }
@@ -949,8 +966,8 @@
                     backgroundColor: function(context) {
                         return getWedgeGradient(context); // Application du dégradé selon le rayon
                     },
-                    borderColor: 'rgba(2, 6, 23, 0.8)', // Bordure sombre pour séparer les quartiers
-                    borderWidth: 2,
+                    borderColor: 'rgba(255, 255, 255, 0.25)', // Ligne de séparation visible entre les quartiers
+                    borderWidth: 1.5,
                     hoverBorderColor: '#fff',
                     hoverBorderWidth: 2
                 }
@@ -1094,15 +1111,20 @@
                 if (e.key === 'Escape') closeModal();
             });
 
+            let lastWidth = window.innerWidth;
             window.addEventListener('resize', () => {
-                if (impactChart) {
-                    const isMobile = window.innerWidth < 768;
-                    impactChart.options.layout.padding = isMobile 
-                        ? { top: 15, bottom: 15, left: 10, right: 10 } 
-                        : { top: 30, bottom: 30, left: 45, right: 45 };
-                    impactChart.options.scales.r.pointLabels.font.size = isMobile ? 10 : 11;
-                    impactChart.options.scales.r.pointLabels.padding = isMobile ? 6 : 12;
-                    updateChart(); // Rafraîchit les labels
+                // Ignore les redimensionnements verticaux purs (ex: scroll sur mobile cachant la barre d'URL)
+                if (window.innerWidth !== lastWidth) {
+                    lastWidth = window.innerWidth;
+                    if (impactChart) {
+                        const isMobile = window.innerWidth < 768;
+                        impactChart.options.layout.padding = isMobile 
+                            ? { top: 20, bottom: 20, left: 15, right: 15 } 
+                            : { top: 30, bottom: 30, left: 45, right: 45 };
+                        impactChart.options.scales.r.pointLabels.font.size = isMobile ? 9 : 11;
+                        impactChart.options.scales.r.pointLabels.padding = isMobile ? 8 : 12;
+                        updateChart(); // Rafraîchit les labels
+                    }
                 }
             });
         }
@@ -1111,6 +1133,17 @@
             const isNone = currentSelection === 'none';
             const selectedItem = isNone ? null : catalog.find(item => item.id === currentSelection);
             
+            // Mise à jour du texte d'introduction dynamique
+            const introText = document.getElementById('intro-text');
+            const introBox = document.getElementById('dynamic-intro');
+            if (isNone) {
+                introBox.className = "max-w-2xl mx-auto p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-sm md:text-base text-blue-100/90 leading-relaxed shadow-inner transition-colors duration-300";
+                introText.innerHTML = `<strong>Vue par défaut :</strong> Vous observez l'<strong>empreinte annuelle moyenne d'un citoyen européen (UE/CH)</strong>, qui dépasse largement l'allocation soutenable sur plusieurs limites. Sélectionnez une action ci-dessous pour voir sa propre consommation.`;
+            } else {
+                introBox.className = "max-w-2xl mx-auto p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-sm md:text-base text-purple-100/90 leading-relaxed shadow-inner transition-colors duration-300";
+                introText.innerHTML = `<strong>Vue scénario :</strong> Vous observez l'impact spécifique de l'action sélectionnée sur votre <strong>budget individuel annuel</strong>.`;
+            }
+
             // Mettre à jour le graphique radar
             updateChart();
             
