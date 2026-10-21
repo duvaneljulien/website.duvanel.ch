@@ -1141,7 +1141,7 @@
                 introText.innerHTML = `<strong>Vue par défaut :</strong> Vous observez l'<strong>empreinte annuelle moyenne d'un citoyen européen (UE/CH)</strong>, qui dépasse largement l'allocation soutenable sur plusieurs limites. Sélectionnez une action ci-dessous pour voir sa propre consommation.`;
             } else {
                 introBox.className = "max-w-2xl mx-auto p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-sm md:text-base text-purple-100/90 leading-relaxed shadow-inner transition-colors duration-300";
-                introText.innerHTML = `<strong>Vue scénario :</strong> Vous observez l'impact spécifique de l'action sélectionnée sur votre <strong>budget individuel annuel</strong>.`;
+                introText.innerHTML = `<strong>Vue scénario :</strong> Vous observez la part de votre <strong>budget individuel annuel</strong> consommée par cette seule action.<br><span class="text-purple-300 mt-2 block"><i class="fa-solid fa-triangle-exclamation text-purple-400 mr-1"></i> <strong>Règle d'or :</strong> Si une limite atteint 100%, votre quota de l'année est épuisé. Pour rester soutenable, vous ne pourriez littéralement <strong>plus rien faire d'autre</strong> (ni manger, ni vous chauffer, ni vous déplacer) pendant 365 jours !</span>`;
             }
 
             // Mettre à jour le graphique radar
