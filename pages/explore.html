@@ -707,6 +707,72 @@
                     novel: "Peintures antifouling toxiques, rejets d'eaux grises et gestion des déchets souvent problématique en pleine mer.",
                     biosphere: "Perturbation de la faune marine par le bruit sous-marin continu des immenses hélices et rejets divers."
                 }
+            },
+            {
+                id: 'ia_extreme',
+                category: 'Numérique',
+                name: '🤖 Usage extrême d\'IA (10 000 req/jour - 1 an)',
+                impacts: {
+                    climate: 14000, ocean_acid: 14000, aerosols: 10, ozone: 0, novel: 5, land: 1, water: 90, biosphere: 1, biogeo: 0
+                },
+                reasons: {
+                    climate: "Faire tourner des milliers de calculs d'inférence quotidiennement sur des cartes graphiques (GPU) consomme une électricité faramineuse sur l'année.",
+                    ocean_acid: "Proportionnel aux émissions CO2 (l'électricité des datacenters mondiaux reposant encore largement sur les énergies fossiles).",
+                    water: "Les datacenters d'IA ont besoin de dissiper une chaleur immense. Ils utilisent d'énormes tours de refroidissement par évaporation (environ 500ml d'eau douce évaporée pour 20 à 50 requêtes)."
+                }
+            },
+            {
+                id: 'bain_quotidien',
+                category: 'Logement',
+                name: '🛁 Un bain chaud tous les jours (1 an)',
+                impacts: {
+                    climate: 350, ocean_acid: 350, aerosols: 0.5, ozone: 0, novel: 5, land: 0, water: 55, biosphere: 0, biogeo: 0
+                },
+                reasons: {
+                    climate: "L'énergie nécessaire pour chauffer l'équivalent de 55 tonnes d'eau (150L par jour) sur une année est considérable (gaz, électricité ou fioul).",
+                    water: "150 litres d'eau potable tirés du réseau d'eau douce chaque jour, soit près de 55 000 litres sur l'année (11% du budget planétaire total).",
+                    novel: "Rejets quotidiens de savons, gels douche et produits cosmétiques contenant des tensioactifs et parfois des microplastiques dans les eaux usées."
+                }
+            },
+            {
+                id: 'chien_moyen',
+                category: 'Loisirs & Tourisme',
+                name: '🐕 Entretien d\'un chien de taille moyenne (1 an)',
+                impacts: {
+                    climate: 800, ocean_acid: 800, aerosols: 0.5, ozone: 0, novel: 15, land: 400, water: 100, biosphere: 120, biogeo: 2.5
+                },
+                reasons: {
+                    climate: "Essentiellement lié à son alimentation : la production de viande et de céréales pour les croquettes émet beaucoup de gaz à effet de serre.",
+                    land: "Des surfaces agricoles très importantes sont dédiées pour produire la nourriture de nos animaux de compagnie.",
+                    biosphere: "L'expansion des terres agricoles (parfois issue de la déforestation) pour nourrir les animaux domestiques empiète sur les habitats sauvages.",
+                    biogeo: "Utilisation d'engrais (azote et phosphore) dans l'agriculture intensive produisant les ingrédients des croquettes."
+                }
+            },
+            {
+                id: 'train_10k',
+                category: 'Transports',
+                name: '🚆 10 000 km en train électrique (1 an)',
+                impacts: {
+                    climate: 250, ocean_acid: 250, aerosols: 0.2, ozone: 0, novel: 5, land: 0.5, water: 2, biosphere: 1, biogeo: 0.1
+                },
+                reasons: {
+                    climate: "Très efficient : bien que l'électricité ait un bilan carbone, transporter des centaines de passagers divise l'impact par personne de façon spectaculaire (comparé à la voiture).",
+                    land: "L'emprise au sol du réseau ferré est très faible rapportée au nombre gigantesque d'usagers quotidiens.",
+                    novel: "Certains polluants liés à l'usure des caténaires, des freins et à l'entretien des voies, mais dilués par passager."
+                }
+            },
+            {
+                id: 'livraison_repas',
+                category: 'Alimentation',
+                name: '🛵 1 repas livré par semaine (1 an)',
+                impacts: {
+                    climate: 80, ocean_acid: 80, aerosols: 1, ozone: 0, novel: 150, land: 1, water: 2, biosphere: 2, biogeo: 0
+                },
+                reasons: {
+                    climate: "Impact des trajets cumulés des livreurs (souvent en scooter thermique) et de la fabrication des emballages.",
+                    aerosols: "Pollution urbaine (particules fines) liée aux moteurs à combustion des deux-roues de livraison.",
+                    novel: "Accumulation de 52 repas dans l'année utilisant des barquettes en plastique, des cartons enduits (PFAS/polluants éternels) et des couverts jetables."
+                }
             }
         ];
 
