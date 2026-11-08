@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Révision du Vocabulaire - La Roulette - v3</title>
+    <title>Révision du Vocabulaire - La Roulette - v4</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -92,19 +92,17 @@
                 <label for="categorySelect" class="text-xs font-bold text-slate-600 uppercase tracking-wider">📁 Catégorie :</label>
                 <select id="categorySelect" onchange="onCategoryChange()" class="bg-slate-50 border border-slate-300 text-slate-800 text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none">
                     <option value="all">Toutes les catégories</option>
-                    <option value="vocab1">Vocabulaire #1</option>
-                    <option value="vocab2">Vocabulaire #2</option>
+                    <option value="vocab1">Vocabulaire #1 (Plage)</option>
+                    <option value="vocab2">Vocabulaire #2 (École)</option>
+                    <option value="vocab3">Vocabulaire #3 (Automne)</option>
                 </select>
             </div>
 
-            <!-- Learning Mechanism for Vocabulaire #2 -->
-            <div id="vocab2BatchContainer" class="flex items-center gap-2 w-full sm:w-auto bg-indigo-50 p-1.5 rounded-2xl border border-indigo-100">
-                <span class="text-xs font-bold text-indigo-800 pl-2">📖 Apprentissage Vocabulaire #2 :</span>
-                <select id="vocab2BatchSelect" onchange="onBatchChange()" class="bg-white border border-indigo-200 text-indigo-900 text-xs font-bold rounded-xl px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-                    <option value="all">Tous (1 à 28)</option>
-                    <option value="batch1">10 premiers (1 - 10)</option>
-                    <option value="batch2">10 suivants (11 - 20)</option>
-                    <option value="batch3">Derniers (21 - 28)</option>
+            <!-- Dynamic Learning Mechanism for Vocabulaire #2 & #3 -->
+            <div id="vocabBatchContainer" class="hidden flex items-center gap-2 w-full sm:w-auto bg-indigo-50 p-1.5 rounded-2xl border border-indigo-100">
+                <span id="batchLabel" class="text-xs font-bold text-indigo-800 pl-2">📖 Apprentissage :</span>
+                <select id="vocabBatchSelect" onchange="onBatchChange()" class="bg-white border border-indigo-200 text-indigo-900 text-xs font-bold rounded-xl px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <!-- Populated dynamically based on category -->
                 </select>
             </div>
         </section>
@@ -274,34 +272,34 @@
 
     <script>
         const DEFAULT_VOCAB_1 = [
-            { id: 'v1-1', category: 'vocab1', word: 'le soleil', icon: 'sun', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-2', category: 'vocab1', word: 'la mer', icon: 'sea', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-3', category: 'vocab1', word: 'la chaleur', icon: 'heat', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-4', category: 'vocab1', word: 'la plage', icon: 'beach', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-5', category: 'vocab1', word: 'le sable', icon: 'sand', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-6', category: 'vocab1', word: 'chaud(e)', icon: 'fire', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-7', category: 'vocab1', word: 'nager', icon: 'swim', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-8', category: 'vocab1', word: 'joyeux', icon: 'happy', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-9', category: 'vocab1', word: 'la vague', icon: 'wave', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-10', category: 'vocab1', word: 'le bateau', icon: 'boat', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-11', category: 'vocab1', word: "l'insolation", icon: 'sunstroke', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-12', category: 'vocab1', word: 'le crabe', icon: 'crab', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-13', category: 'vocab1', word: 'juillet', icon: 'calendar_july', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-14', category: 'vocab1', word: 'août', icon: 'calendar_august', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-15', category: 'vocab1', word: 'foncé(e)', icon: 'dark', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-16', category: 'vocab1', word: 'une pieuvre', icon: 'octopus', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-17', category: 'vocab1', word: 'jouer', icon: 'play', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-18', category: 'vocab1', word: 'couler', icon: 'sink', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-19', category: 'vocab1', word: 'après', icon: 'next', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-20', category: 'vocab1', word: 'le parasol', icon: 'parasol', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-21', category: 'vocab1', word: 'les vacances', icon: 'vacation', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-22', category: 'vocab1', word: 'naviguer', icon: 'navigate', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-23', category: 'vocab1', word: 'long(ue)', icon: 'ruler', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-24', category: 'vocab1', word: 'profond(e)', icon: 'deep', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-25', category: 'vocab1', word: 'la sandale', icon: 'sandal', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-26', category: 'vocab1', word: 'le tuba', icon: 'snorkel', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-27', category: 'vocab1', word: 'le masque', icon: 'mask', successCount: 0, failCount: 0, lastResult: null },
-            { id: 'v1-28', category: 'vocab1', word: 'les palmes', icon: 'flippers', successCount: 0, failCount: 0, lastResult: null }
+            { id: 'v1-1', category: 'vocab1', order: 1, word: 'le soleil', icon: 'sun', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-2', category: 'vocab1', order: 2, word: 'la mer', icon: 'sea', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-3', category: 'vocab1', order: 3, word: 'la chaleur', icon: 'heat', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-4', category: 'vocab1', order: 4, word: 'la plage', icon: 'beach', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-5', category: 'vocab1', order: 5, word: 'le sable', icon: 'sand', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-6', category: 'vocab1', order: 6, word: 'chaud(e)', icon: 'fire', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-7', category: 'vocab1', order: 7, word: 'nager', icon: 'swim', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-8', category: 'vocab1', order: 8, word: 'joyeux', icon: 'happy', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-9', category: 'vocab1', order: 9, word: 'la vague', icon: 'wave', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-10', category: 'vocab1', order: 10, word: 'le bateau', icon: 'boat', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-11', category: 'vocab1', order: 11, word: "l'insolation", icon: 'sunstroke', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-12', category: 'vocab1', order: 12, word: 'le crabe', icon: 'crab', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-13', category: 'vocab1', order: 13, word: 'juillet', icon: 'calendar_july', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-14', category: 'vocab1', order: 14, word: 'août', icon: 'calendar_august', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-15', category: 'vocab1', order: 15, word: 'foncé(e)', icon: 'dark', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-16', category: 'vocab1', order: 16, word: 'une pieuvre', icon: 'octopus', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-17', category: 'vocab1', order: 17, word: 'jouer', icon: 'play', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-18', category: 'vocab1', order: 18, word: 'couler', icon: 'sink', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-19', category: 'vocab1', order: 19, word: 'après', icon: 'next', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-20', category: 'vocab1', order: 20, word: 'le parasol', icon: 'parasol', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-21', category: 'vocab1', order: 21, word: 'les vacances', icon: 'vacation', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-22', category: 'vocab1', order: 22, word: 'naviguer', icon: 'navigate', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-23', category: 'vocab1', order: 23, word: 'long(ue)', icon: 'ruler', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-24', category: 'vocab1', order: 24, word: 'profond(e)', icon: 'deep', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-25', category: 'vocab1', order: 25, word: 'la sandale', icon: 'sandal', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-26', category: 'vocab1', order: 26, word: 'le tuba', icon: 'snorkel', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-27', category: 'vocab1', order: 27, word: 'le masque', icon: 'mask', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v1-28', category: 'vocab1', order: 28, word: 'les palmes', icon: 'flippers', successCount: 0, failCount: 0, lastResult: null }
         ];
 
         const DEFAULT_VOCAB_2 = [
@@ -335,6 +333,40 @@
             { id: 'v2-28', category: 'vocab2', order: 28, word: 'punir', icon: 'punish', successCount: 0, failCount: 0, lastResult: null }
         ];
 
+        const DEFAULT_VOCAB_3 = [
+            // Partie 1 (1-10)
+            { id: 'v3-1', category: 'vocab3', order: 1, word: "l'automne", icon: 'leaf', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-2', category: 'vocab3', order: 2, word: 'la bise', icon: 'wind', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-3', category: 'vocab3', order: 3, word: 'le champignon', icon: 'mushroom', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-4', category: 'vocab3', order: 4, word: 'la feuille', icon: 'leaf', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-5', category: 'vocab3', order: 5, word: 'le froid', icon: 'cold', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-6', category: 'vocab3', order: 6, word: 'mort(e)', icon: 'dead_leaf', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-7', category: 'vocab3', order: 7, word: 'se promener', icon: 'walk', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-8', category: 'vocab3', order: 8, word: 'longtemps', icon: 'clock', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-9', category: 'vocab3', order: 9, word: 'nettoyer', icon: 'clean', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-10', category: 'vocab3', order: 10, word: 'la pluie', icon: 'rain', successCount: 0, failCount: 0, lastResult: null },
+            // Partie 2 (11-19)
+            { id: 'v3-11', category: 'vocab3', order: 11, word: 'le vent', icon: 'wind', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-12', category: 'vocab3', order: 12, word: 'la forêt', icon: 'forest', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-13', category: 'vocab3', order: 13, word: 'le cerf', icon: 'deer', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-14', category: 'vocab3', order: 14, word: 'quatre', icon: 'four', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-15', category: 'vocab3', order: 15, word: 'la chasse', icon: 'target', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-16', category: 'vocab3', order: 16, word: 'sombre', icon: 'dark', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-17', category: 'vocab3', order: 17, word: 'humide', icon: 'drop', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-18', category: 'vocab3', order: 18, word: 'un écureuil', icon: 'acorn', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-19', category: 'vocab3', order: 19, word: 'découvrir', icon: 'discover', successCount: 0, failCount: 0, lastResult: null },
+            // Partie 3 (20-28)
+            { id: 'v3-20', category: 'vocab3', order: 20, word: 'raconter', icon: 'tell', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-21', category: 'vocab3', order: 21, word: 'triste', icon: 'sad', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-22', category: 'vocab3', order: 22, word: 's\'habiller', icon: 'coat', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-23', category: 'vocab3', order: 23, word: 'se réchauffer', icon: 'warm_up', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-24', category: 'vocab3', order: 24, word: 'parfois', icon: 'sometimes', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-25', category: 'vocab3', order: 25, word: 'accompagner', icon: 'accompany', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-26', category: 'vocab3', order: 26, word: 'la balade', icon: 'walk', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-27', category: 'vocab3', order: 27, word: 'châtaigne', icon: 'chestnut', successCount: 0, failCount: 0, lastResult: null },
+            { id: 'v3-28', category: 'vocab3', order: 28, word: 'le marron', icon: 'chestnut', successCount: 0, failCount: 0, lastResult: null }
+        ];
+
         let words = [];
         let isSpinning = false;
         let currentAngle = 0;
@@ -345,11 +377,12 @@
         let isDictVisible = true;
         let currentFilter = 'all'; 
         let wheelFilter = 'all'; 
-        let selectedCategory = 'all'; // 'all', 'vocab1', 'vocab2'
-        let selectedBatch = 'all'; // 'all', 'batch1', 'batch2', 'batch3'
+        let selectedCategory = 'all'; // 'all', 'vocab1', 'vocab2', 'vocab3'
+        let selectedBatch = 'all'; // Dynamic based on category
 
         function getSvgIcon(iconKey) {
             const svgs = {
+                // Vocab 1 Icons
                 sun: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="22" fill="#F59E0B"/><g stroke="#F59E0B" stroke-width="6" stroke-linecap="round"><line x1="50" y1="10" x2="50" y2="18"/><line x1="50" y1="82" x2="50" y2="90"/><line x1="10" y1="50" x2="18" y2="50"/><line x1="82" y1="50" x2="90" y2="50"/><line x1="22" y1="22" x2="28" y2="28"/><line x1="72" y1="72" x2="78" y2="78"/><line x1="22" y1="78" x2="28" y2="72"/><line x1="72" y1="28" x2="78" y2="22"/></g></svg>`,
                 sea: `<svg viewBox="0 0 100 100" class="w-full h-full"><rect x="10" y="20" width="80" height="60" rx="12" fill="#38BDF8"/><path d="M10 45 Q25 35 40 45 T70 45 T100 45 L100 80 L10 80 Z" fill="#0284C7"/></svg>`,
                 heat: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M42 75 A15 15 0 1 0 58 75 L58 30 A8 8 0 1 0 42 30 Z" fill="#E0E7FF" stroke="#4338CA" stroke-width="4"/><circle cx="50" cy="75" r="10" fill="#EF4444"/></svg>`,
@@ -378,6 +411,8 @@
                 snorkel: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M60 20 L60 65 Q 60 80 42 80 Q 30 80 30 70" fill="none" stroke="#06B6D4" stroke-width="8"/></svg>`,
                 mask: `<svg viewBox="0 0 100 100" class="w-full h-full"><rect x="20" y="35" width="60" height="30" rx="15" fill="#0284C7"/></svg>`,
                 flippers: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M30 25 L22 75 L42 75 L36 25 Z" fill="#10B981"/></svg>`,
+
+                // Vocab 2 Icons
                 school: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M20 80 L20 45 L50 20 L80 45 L80 80 Z" fill="#4F46E5"/><rect x="42" y="55" width="16" height="25" fill="#FACC15"/><rect x="30" y="40" width="12" height="12" fill="#FFFFFF"/><rect x="58" y="40" width="12" height="12" fill="#FFFFFF"/></svg>`,
                 lunch: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="32" fill="#E2E8F0" stroke="#94A3B8" stroke-width="4"/><path d="M30 50 Q 50 30 70 50 Z" fill="#EF4444"/><circle cx="50" cy="50" r="12" fill="#F59E0B"/></svg>`,
                 bell: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 20 A 20 20 0 0 0 30 40 L30 60 L20 68 L80 68 L70 60 L70 40 A 20 20 0 0 0 50 20 Z" fill="#F59E0B"/><circle cx="50" cy="76" r="6" fill="#D97706"/></svg>`,
@@ -404,6 +439,32 @@
                 calendar_period: `<svg viewBox="0 0 100 100" class="w-full h-full"><rect x="18" y="20" width="64" height="60" rx="6" fill="#FFF" stroke="#3B82F6" stroke-width="4"/><rect x="18" y="20" width="64" height="18" fill="#3B82F6"/></svg>`,
                 star_excellent: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 15 L62 38 L87 42 L68 60 L73 85 L50 72 L27 85 L32 60 L13 42 L38 38 Z" fill="#F59E0B"/></svg>`,
                 punish: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#DC2626"/><line x1="30" y1="30" x2="70" y2="70" stroke="#FFF" stroke-width="8" stroke-linecap="round"/></svg>`,
+
+                // Vocab 3 Icons
+                leaf: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 15 Q80 15 80 50 Q80 85 50 90 Q20 85 20 50 Q20 15 50 15 Z" fill="#F97316"/><path d="M50 90 L50 15" stroke="#9A3412" stroke-width="4"/><path d="M50 70 L30 50 M50 50 L70 30 M50 30 L35 15" stroke="#9A3412" stroke-width="3" fill="none"/></svg>`,
+                wind: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M20 40 Q40 30 70 40 Q80 43 75 50 Q70 55 60 50" fill="none" stroke="#94A3B8" stroke-width="6" stroke-linecap="round"/><path d="M15 60 Q35 70 60 60 Q70 57 75 65 Q70 70 65 65" fill="none" stroke="#CBD5E1" stroke-width="5" stroke-linecap="round"/><path d="M30 20 Q50 15 65 25 Q75 30 70 35" fill="none" stroke="#E2E8F0" stroke-width="4" stroke-linecap="round"/></svg>`,
+                mushroom: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M20 55 C20 10 80 10 80 55 Z" fill="#EF4444"/><rect x="40" y="55" width="20" height="30" rx="5" fill="#FEF08A"/><circle cx="35" cy="35" r="5" fill="#FFF"/><circle cx="50" cy="20" r="4" fill="#FFF"/><circle cx="65" cy="40" r="6" fill="#FFF"/></svg>`,
+                cold: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#E0F2FE"/><path d="M50 20 L50 80 M20 50 L80 50 M28 28 L72 72 M28 72 L72 28" stroke="#38BDF8" stroke-width="6" stroke-linecap="round"/><path d="M42 25 L50 20 L58 25 M75 42 L80 50 L75 58 M58 75 L50 80 L42 75 M25 58 L20 50 L25 42" stroke="#0284C7" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`,
+                dead_leaf: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 20 C70 30 75 60 50 85 C25 60 30 30 50 20 Z" fill="#78350F"/><path d="M50 85 L50 20" stroke="#451A03" stroke-width="4"/><path d="M50 60 L35 45 M50 45 L65 30" stroke="#451A03" stroke-width="4"/></svg>`,
+                walk: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M30 40 Q40 20 45 40 Q40 60 30 40 Z" fill="#F59E0B"/><path d="M60 60 Q70 40 75 60 Q70 80 60 60 Z" fill="#F59E0B"/><circle cx="30" cy="25" r="5" fill="#F59E0B"/><circle cx="60" cy="45" r="5" fill="#F59E0B"/></svg>`,
+                clock: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#FFF" stroke="#64748B" stroke-width="8"/><line x1="50" y1="50" x2="50" y2="25" stroke="#334155" stroke-width="6" stroke-linecap="round"/><line x1="50" y1="50" x2="65" y2="65" stroke="#334155" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="50" r="4" fill="#EF4444"/></svg>`,
+                clean: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 10 L55 45 L90 50 L55 55 L50 90 L45 55 L10 50 L45 45 Z" fill="#FBBF24"/><path d="M20 20 L25 35 L40 40 L25 45 L20 60 L15 45 L0 40 L15 35 Z" fill="#60A5FA"/></svg>`,
+                rain: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M20 50 Q20 30 40 30 Q50 10 70 30 Q90 30 90 50 Z" fill="#94A3B8"/><line x1="30" y1="60" x2="25" y2="80" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="60" x2="45" y2="80" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/><line x1="70" y1="60" x2="65" y2="80" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/></svg>`,
+                forest: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 10 L25 45 L35 45 L15 80 L85 80 L65 45 L75 45 Z" fill="#22C55E"/><rect x="42" y="80" width="16" height="15" fill="#78350F"/></svg>`,
+                deer: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M30 40 L20 10 M30 40 L40 10 M70 40 L80 10 M70 40 L60 10" stroke="#78350F" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M30 40 Q50 80 70 40 Z" fill="#B45309"/><circle cx="40" cy="50" r="4" fill="#000"/><circle cx="60" cy="50" r="4" fill="#000"/><circle cx="50" cy="65" r="5" fill="#000"/></svg>`,
+                four: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#A855F7"/><text x="50" y="68" font-family="Fredoka" font-size="50" font-weight="bold" fill="#FFF" text-anchor="middle">4</text></svg>`,
+                target: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="40" fill="#EF4444"/><circle cx="50" cy="50" r="28" fill="#FFF"/><circle cx="50" cy="50" r="16" fill="#EF4444"/><line x1="50" y1="10" x2="50" y2="90" stroke="#000" stroke-width="2"/><line x1="10" y1="50" x2="90" y2="50" stroke="#000" stroke-width="2"/></svg>`,
+                drop: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 15 Q75 60 75 75 A25 25 0 0 1 25 75 Q25 60 50 15 Z" fill="#0EA5E9"/></svg>`,
+                acorn: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M25 45 C25 80 75 80 75 45 Z" fill="#D97706"/><path d="M20 45 Q50 20 80 45 Z" fill="#78350F"/><line x1="50" y1="35" x2="50" y2="20" stroke="#78350F" stroke-width="6" stroke-linecap="round"/></svg>`,
+                discover: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="45" cy="45" r="25" fill="#E0F2FE" stroke="#64748B" stroke-width="8"/><line x1="62" y1="62" x2="85" y2="85" stroke="#475569" stroke-width="12" stroke-linecap="round"/><circle cx="40" cy="40" r="5" fill="#FFF"/></svg>`,
+                tell: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M20 30 Q50 10 80 30 Q90 50 80 70 Q50 90 40 70 L20 80 L30 60 Q10 50 20 30 Z" fill="#60A5FA"/><circle cx="35" cy="45" r="4" fill="#1E3A8A"/><circle cx="50" cy="45" r="4" fill="#1E3A8A"/><circle cx="65" cy="45" r="4" fill="#1E3A8A"/></svg>`,
+                sad: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="38" fill="#FACC15"/><circle cx="38" cy="40" r="5" fill="#1E293B"/><circle cx="62" cy="40" r="5" fill="#1E293B"/><path d="M35 70 Q50 55 65 70" fill="none" stroke="#1E293B" stroke-width="5" stroke-linecap="round"/></svg>`,
+                coat: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M30 20 L70 20 L90 50 L75 60 L65 40 L65 90 L35 90 L35 40 L25 60 L10 50 Z" fill="#EC4899"/><path d="M50 20 L50 90" stroke="#BE185D" stroke-width="4"/><circle cx="50" cy="40" r="3" fill="#FFF"/><circle cx="50" cy="60" r="3" fill="#FFF"/><circle cx="50" cy="80" r="3" fill="#FFF"/></svg>`,
+                warm_up: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 15 C65 30 65 50 50 70 C35 50 35 30 50 15 Z" fill="#EF4444"/><path d="M50 35 C58 45 58 60 50 70 C42 60 42 45 50 35 Z" fill="#FACC15"/><path d="M20 50 Q30 30 40 40 Q30 60 20 50 Z" fill="#FDBA74"/><path d="M80 50 Q70 30 60 40 Q70 60 80 50 Z" fill="#FDBA74"/></svg>`,
+                sometimes: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#CBD5E1"/><path d="M50 15 A35 35 0 0 1 50 85 Z" fill="#6366F1"/></svg>`,
+                accompany: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="35" cy="30" r="12" fill="#FCA5A5"/><path d="M15 80 C15 50 55 50 55 80 Z" fill="#0284C7"/><circle cx="65" cy="35" r="10" fill="#FCD34D"/><path d="M50 80 C50 60 80 60 80 80 Z" fill="#10B981"/></svg>`,
+                chestnut: `<svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 20 C80 20 80 70 50 80 C20 70 20 20 50 20 Z" fill="#8B4513"/><path d="M50 50 C70 50 70 75 50 80 C30 75 30 50 50 50 Z" fill="#D2B48C"/></svg>`,
+
                 default: `<svg viewBox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="35" fill="#818CF8"/><text x="50" y="62" font-family="Fredoka" font-weight="bold" font-size="36" fill="#FFFFFF" text-anchor="middle">?</text></svg>`
             };
             return svgs[iconKey] || svgs.default;
@@ -415,7 +476,7 @@
         };
 
         function loadStateFromStorage() {
-            const savedScore = localStorage.getItem('vocab_star_score_v4');
+            const savedScore = localStorage.getItem('vocab_star_score_v5');
             starScore = savedScore ? parseInt(savedScore, 10) || 0 : 0;
             document.getElementById('starScore').innerText = starScore;
 
@@ -431,23 +492,29 @@
 
             const savedBatch = localStorage.getItem('vocab_selected_batch');
             if (savedBatch) selectedBatch = savedBatch;
-            document.getElementById('vocab2BatchSelect').value = selectedBatch;
 
-            const savedWords = localStorage.getItem('vocab_words_v4');
+            // Utiliser une nouvelle clé pour forcer le chargement du vocabulaire 3 chez les anciens utilisateurs
+            const savedWords = localStorage.getItem('vocab_words_v5');
             if (savedWords) {
                 try {
                     words = JSON.parse(savedWords);
                 } catch(e) {
-                    words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2];
+                    words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2, ...DEFAULT_VOCAB_3];
                 }
             } else {
-                words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2];
+                words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2, ...DEFAULT_VOCAB_3];
+                // Récupérer le score v4 si existant pour ne pas le perdre
+                const oldScore = localStorage.getItem('vocab_star_score_v4');
+                if (oldScore && !savedScore) {
+                    starScore = parseInt(oldScore, 10) || 0;
+                    document.getElementById('starScore').innerText = starScore;
+                }
             }
         }
 
         function saveStateToStorage() {
-            localStorage.setItem('vocab_words_v4', JSON.stringify(words));
-            localStorage.setItem('vocab_star_score_v4', starScore.toString());
+            localStorage.setItem('vocab_words_v5', JSON.stringify(words));
+            localStorage.setItem('vocab_star_score_v5', starScore.toString());
             localStorage.setItem('vocab_dict_visible', isDictVisible.toString());
             localStorage.setItem('vocab_selected_category', selectedCategory);
             localStorage.setItem('vocab_selected_batch', selectedBatch);
@@ -455,12 +522,13 @@
 
         function onCategoryChange() {
             selectedCategory = document.getElementById('categorySelect').value;
+            selectedBatch = 'all'; // Réinitialiser le sous-groupe quand on change de catégorie
             saveStateToStorage();
             updateUIState();
         }
 
         function onBatchChange() {
-            selectedBatch = document.getElementById('vocab2BatchSelect').value;
+            selectedBatch = document.getElementById('vocabBatchSelect').value;
             saveStateToStorage();
             updateUIState();
         }
@@ -468,33 +536,32 @@
         function getFilteredWords() {
             return words.filter(w => {
                 // Category Filter
-                if (selectedCategory === 'vocab1' && w.category !== 'vocab1') return false;
-                if (selectedCategory === 'vocab2' && w.category !== 'vocab2') return false;
+                if (selectedCategory !== 'all' && w.category !== selectedCategory) return false;
 
-                // Vocab 2 Learning Sub-batch Filter
-                if (w.category === 'vocab2' && (selectedCategory === 'vocab2' || selectedCategory === 'all')) {
-                    if (selectedBatch === 'batch1' && (w.order < 1 || w.order > 10)) return false;
-                    if (selectedBatch === 'batch2' && (w.order < 11 || w.order > 20)) return false;
-                    if (selectedBatch === 'batch3' && (w.order < 21 || w.order > 28)) return false;
+                // Sub-batch Filter
+                if (selectedBatch !== 'all') {
+                    if (selectedBatch === 'v2-1' && (w.category !== 'vocab2' || w.order < 1 || w.order > 10)) return false;
+                    if (selectedBatch === 'v2-2' && (w.category !== 'vocab2' || w.order < 11 || w.order > 20)) return false;
+                    if (selectedBatch === 'v2-3' && (w.category !== 'vocab2' || w.order < 21 || w.order > 28)) return false;
+                    
+                    if (selectedBatch === 'v3-1' && (w.category !== 'vocab3' || w.order < 1 || w.order > 10)) return false;
+                    if (selectedBatch === 'v3-2' && (w.category !== 'vocab3' || w.order < 11 || w.order > 19)) return false;
+                    if (selectedBatch === 'v3-3' && (w.category !== 'vocab3' || w.order < 20 || w.order > 28)) return false;
                 }
 
                 return true;
             });
         }
 
-        // Helper: Returns true if the word was successful on its last attempt
         function isWordMasteredLastTime(w) {
             if (w.lastResult !== undefined && w.lastResult !== null) {
                 return w.lastResult === 'success';
             }
-            // Fallback for compatibility: if successCount > 0 and no fails, treat as succeeded
             return (w.successCount || 0) > 0 && (w.failCount || 0) === 0;
         }
 
         function getWheelWords() {
             const currentScopeWords = getFilteredWords();
-            
-            // Exclude words that were successful on their last attempt
             const eligibleWords = currentScopeWords.filter(w => !isWordMasteredLastTime(w));
 
             if (wheelFilter === 'unmastered') {
@@ -504,9 +571,28 @@
         }
 
         function updateUIState() {
-            const batchContainer = document.getElementById('vocab2BatchContainer');
-            if (selectedCategory === 'vocab2' || selectedCategory === 'all') {
+            const batchContainer = document.getElementById('vocabBatchContainer');
+            const batchSelect = document.getElementById('vocabBatchSelect');
+            const batchLabel = document.getElementById('batchLabel');
+
+            if (selectedCategory === 'vocab2') {
                 batchContainer.classList.remove('hidden');
+                batchLabel.innerText = "📖 Apprentissage Vocab #2 :";
+                batchSelect.innerHTML = `
+                    <option value="all" ${selectedBatch === 'all' ? 'selected' : ''}>Tous (1 à 28)</option>
+                    <option value="v2-1" ${selectedBatch === 'v2-1' ? 'selected' : ''}>10 premiers (1 - 10)</option>
+                    <option value="v2-2" ${selectedBatch === 'v2-2' ? 'selected' : ''}>10 suivants (11 - 20)</option>
+                    <option value="v2-3" ${selectedBatch === 'v2-3' ? 'selected' : ''}>Derniers (21 - 28)</option>
+                `;
+            } else if (selectedCategory === 'vocab3') {
+                batchContainer.classList.remove('hidden');
+                batchLabel.innerText = "🍂 Apprentissage Vocab #3 :";
+                batchSelect.innerHTML = `
+                    <option value="all" ${selectedBatch === 'all' ? 'selected' : ''}>Tous (1 à 28)</option>
+                    <option value="v3-1" ${selectedBatch === 'v3-1' ? 'selected' : ''}>Partie 1 (1 - 10)</option>
+                    <option value="v3-2" ${selectedBatch === 'v3-2' ? 'selected' : ''}>Partie 2 (11 - 19)</option>
+                    <option value="v3-3" ${selectedBatch === 'v3-3' ? 'selected' : ''}>Partie 3 (20 - 28)</option>
+                `;
             } else {
                 batchContainer.classList.add('hidden');
             }
@@ -530,7 +616,6 @@
             if (!allBtn || !unmasteredBtn) return;
 
             const scopeWords = getFilteredWords();
-            // Count words eligible for the wheel (not succeeded last time)
             const eligibleWords = scopeWords.filter(w => !isWordMasteredLastTime(w));
             const allCount = eligibleWords.length;
             const unmasteredCount = eligibleWords.filter(w => (w.failCount || 0) > 0 || (w.successCount || 0) === 0).length;
@@ -715,12 +800,14 @@
             document.getElementById('instructionText').innerText = "📝 Écris ce mot sur ton cahier de brouillon !";
 
             const categoryTag = document.getElementById('categoryTag');
-            categoryTag.innerText = word.category === 'vocab1' ? 'Vocabulaire #1' : 'Vocabulaire #2';
+            if (word.category === 'vocab1') categoryTag.innerText = 'Vocabulaire #1 (Plage)';
+            else if (word.category === 'vocab2') categoryTag.innerText = 'Vocabulaire #2 (École)';
+            else if (word.category === 'vocab3') categoryTag.innerText = 'Vocabulaire #3 (Automne)';
+            else categoryTag.innerText = 'Nouveau Mot';
 
             document.getElementById('pictoDisplay').innerHTML = getSvgIcon(word.icon);
             document.getElementById('wordText').innerText = word.word;
 
-            // AMÉLIORATION : Énonciation automatique du mot dès qu'il est déterminé par la roulette
             speakWord();
         }
 
@@ -739,11 +826,11 @@
             if (isSuccess) {
                 starScore += 1;
                 selectedWord.successCount = (selectedWord.successCount || 0) + 1;
-                selectedWord.lastResult = 'success'; // Enregistre la réussite au dernier essai
+                selectedWord.lastResult = 'success';
                 document.getElementById('starScore').innerText = starScore;
             } else {
                 selectedWord.failCount = (selectedWord.failCount || 0) + 1;
-                selectedWord.lastResult = 'fail'; // Enregistre l'échec au dernier essai
+                selectedWord.lastResult = 'fail';
             }
 
             saveStateToStorage();
@@ -850,7 +937,8 @@
 
             const availableIcons = [
                 'sun', 'sea', 'heat', 'beach', 'sand', 'fire', 'swim', 'happy', 'wave', 'boat', 'sunstroke', 'crab', 'calendar_july', 'calendar_august', 'dark', 'octopus', 'play', 'sink', 'next', 'parasol', 'vacation', 'navigate', 'ruler', 'deep', 'sandal', 'snorkel', 'mask', 'flippers',
-                'school', 'lunch', 'bell', 'teacher', 'serious', 'learn', 'difficult', 'work', 'teacher_f', 'weekend', 'homework', 'five', 'pencil', 'early', 'strict', 'problem', 'write', 'question', 'arrow_right', 'focus', 'clock_late', 'repeat', 'check_grade', 'calendar_period', 'star_excellent', 'punish'
+                'school', 'lunch', 'bell', 'teacher', 'serious', 'learn', 'difficult', 'work', 'teacher_f', 'weekend', 'homework', 'five', 'pencil', 'early', 'strict', 'problem', 'write', 'question', 'arrow_right', 'focus', 'clock_late', 'repeat', 'check_grade', 'calendar_period', 'star_excellent', 'punish',
+                'leaf', 'wind', 'mushroom', 'cold', 'dead_leaf', 'walk', 'clock', 'clean', 'rain', 'forest', 'deer', 'four', 'target', 'drop', 'acorn', 'discover', 'tell', 'sad', 'coat', 'warm_up', 'sometimes', 'accompany', 'chestnut'
             ];
 
             const scopeWords = getFilteredWords();
@@ -885,6 +973,7 @@
                         <select onchange="updateWordCategory('${item.id}', this.value)" class="w-full text-[10px] border border-slate-300 rounded px-1 py-0.5 mb-1 bg-white">
                             <option value="vocab1" ${item.category === 'vocab1' ? 'selected' : ''}>Vocab #1</option>
                             <option value="vocab2" ${item.category === 'vocab2' ? 'selected' : ''}>Vocab #2</option>
+                            <option value="vocab3" ${item.category === 'vocab3' ? 'selected' : ''}>Vocab #3</option>
                         </select>
                         <select onchange="updateWordIcon('${item.id}', this.value)" class="w-full text-[10px] border border-slate-300 rounded px-1 py-0.5 mb-1 bg-white">
                             ${availableIcons.map(ic => `<option value="${ic}" ${ic === item.icon ? 'selected' : ''}>${ic}</option>`).join('')}
@@ -913,7 +1002,9 @@
 
                     const categoryBadge = item.category === 'vocab1' 
                         ? `<span class="absolute top-1 right-1 text-[9px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">#1</span>`
-                        : `<span class="absolute top-1 right-1 text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">#2</span>`;
+                        : item.category === 'vocab2'
+                        ? `<span class="absolute top-1 right-1 text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">#2</span>`
+                        : `<span class="absolute top-1 right-1 text-[9px] bg-orange-100 text-orange-700 font-bold px-1.5 py-0.5 rounded-full">#3</span>`;
 
                     card.innerHTML = `
                         ${categoryBadge}
@@ -973,7 +1064,7 @@
             const newId = Date.now().toString();
             words.push({
                 id: newId,
-                category: selectedCategory === 'vocab2' ? 'vocab2' : 'vocab1',
+                category: selectedCategory === 'all' ? 'vocab3' : selectedCategory,
                 word: 'Nouveau mot',
                 icon: 'happy',
                 successCount: 0,
@@ -987,7 +1078,7 @@
         }
 
         function resetDefaultList() {
-            words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2];
+            words = [...DEFAULT_VOCAB_1, ...DEFAULT_VOCAB_2, ...DEFAULT_VOCAB_3];
             saveStateToStorage();
             updateUIState();
         }
