@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventure des Tables de Multiplication</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+
+        .card-glow {
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Pulse animation for active streak */
+        @keyframes pulse-flame {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .flame-anim {
+            animation: pulse-flame 1s infinite ease-in-out;
+        }
+
+        /* Keypad press effect */
+        .key-btn {
+            box-shadow: 0 4px 0 #cbd5e1;
+        }
+        .key-btn:active {
+            box-shadow: 0 0 0 #cbd5e1;
+            transform: translateY(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <header class="bg-white/80 backdrop-blur-md border-b border-sky-100 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-indigo-500 to-sky-400 text-white p-3 rounded-2xl shadow-md">
+                    <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">
+                        Maths Magiques
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium">Apprends les tables de 1 à 12 en t'amusant !</p>
+                </div>
+            </div>
+
+            <!-- Stats Header Widget -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full text-amber-700 font-bold text-sm sm:text-base">
+                    <i class="fa-solid fa-star text-amber-400 text-lg"></i>
+                    <span id="total-stars">0</span>
+                </div>
+                <button id="sound-toggle" onclick="toggleSound()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 mt-6">
+        <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
+            <button onclick="switchTab('learn')" id="tab-learn" class="tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+                <i class="fa-solid fa-book-open"></i> Apprendre
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 shadow-sm">
+                <i class="fa-solid fa-gamepad"></i> Entraînement
+            </button>
+            <button onclick="switchTab('chrono')" id="tab-chrono" class="tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 shadow-sm">
+                <i class="fa-solid fa-stopwatch"></i> Défi Chrono
+            </button>
+            <button onclick="switchTab('trophies')" id="tab-trophies" class="tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 shadow-sm">
+                <i class="fa-solid fa-trophy"></i> Trophées
+            </button>
+        </nav>
+
+        <section id="view-learn" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-3xl card-glow border border-sky-100">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-eye text-indigo-500"></i> Choisis ta table
+                    </h2>
+                    <!-- Table selector pills -->
+                    <div id="table-selector-learn" class="flex flex-wrap gap-1.5 sm:gap-2">
+                        <!-- Dynamically filled 1 to 12 buttons -->
+                    </div>
+                </div>
+
+                <!-- Active Table Display -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <!-- Column 1: Multiplication Table Cards -->
+                    <div id="table-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Dynamic items -->
+                    </div>
+
+                    <!-- Column 2: Visual Representation Box -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 sticky top-20">
+                        <h3 class="text-base font-bold text-slate-700 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-amber-500"></i> Représentation Visuelle
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Clique sur un calcul pour voir le schéma d'étoiles correspondant.</p>
+                        
+                        <div id="visual-title" class="text-center font-bold text-indigo-600 text-lg mb-3">
+                            Sélectionne une formule
+                        </div>
+
+                        <!-- Visual Grid Container -->
+                        <div id="visual-grid" class="flex flex-wrap justify-center gap-1.5 p-4 bg-white rounded-xl border border-slate-100 min-h-[160px] items-center">
+                            <span class="text-slate-400 text-sm">Clique sur une ligne de calcul à gauche</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-quiz" class="tab-content hidden space-y-6">
+            <!-- Table Selection Checkboxes -->
+            <div class="bg-white p-5 rounded-3xl card-glow border border-sky-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-slate-700 text-sm sm:text-base">Tables au programme :</h3>
+                    <div class="flex gap-2">
+                        <button onclick="selectAllQuizTables(true)" class="text-xs text-indigo-600 hover:underline font-bold">Tout cocher</button>
+                        <span class="text-slate-300">|</span>
+                        <button onclick="selectAllQuizTables(false)" class="text-xs text-slate-500 hover:underline">Décocher tout</button>
+                    </div>
+                </div>
+                <div id="quiz-table-checkboxes" class="flex flex-wrap gap-2">
+                    <!-- Checkboxes 1 to 12 dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Main Quiz Area -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl card-glow border border-sky-100 max-w-xl mx-auto">
+                <!-- Top Quiz Bar -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-amber-500 text-xl flame-anim"></i>
+                        <span id="quiz-streak" class="font-extrabold text-lg text-slate-700">Série : 0</span>
+                    </div>
+                    <div id="quiz-feedback-pill" class="hidden px-3 py-1 rounded-full text-xs font-bold"></div>
+                </div>
+
+                <!-- Equation Display -->
+                <div class="text-center my-6">
+                    <div id="quiz-equation" class="text-5xl sm:text-6xl font-black text-slate-800 tracking-wider">
+                        ? × ?
+                    </div>
+                    <div id="quiz-answer-display" class="mt-4 text-3xl font-bold text-indigo-600 h-10 flex items-center justify-center">
+                        <span id="user-input-text" class="border-b-4 border-indigo-500 min-w-[80px] inline-block px-2">_</span>
+                    </div>
+                </div>
+
+                <div class="max-w-xs mx-auto grid grid-cols-3 gap-2.5 mb-6">
+                    <button onclick="appendNum(1)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">1</button>
+                    <button onclick="appendNum(2)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">2</button>
+                    <button onclick="appendNum(3)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">3</button>
+                    <button onclick="appendNum(4)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">4</button>
+                    <button onclick="appendNum(5)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">5</button>
+                    <button onclick="appendNum(6)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">6</button>
+                    <button onclick="appendNum(7)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">7</button>
+                    <button onclick="appendNum(8)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">8</button>
+                    <button onclick="appendNum(9)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">9</button>
+                    <button onclick="clearNum()" class="key-btn bg-rose-100 hover:bg-rose-200 text-rose-600 font-bold text-lg py-3 rounded-xl transition"><i class="fa-solid fa-delete-left"></i></button>
+                    <button onclick="appendNum(0)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl transition">0</button>
+                    <button onclick="submitQuizAnswer()" class="key-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl py-3 rounded-xl transition shadow-lg shadow-indigo-200"><i class="fa-solid fa-check"></i></button>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="skipQuestion()" class="text-slate-400 hover:text-slate-600 text-xs font-semibold">Passer la question</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-chrono" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl card-glow border border-sky-100 max-w-xl mx-auto text-center">
+                <!-- Start Screen -->
+                <div id="chrono-start-screen" class="space-y-6">
+                    <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto text-3xl">
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Défi Chrono 60 Secondes</h2>
+                        <p class="text-slate-500 text-sm mt-1">Réponds à un maximum de calculs avant la fin du temps !</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block">
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Meilleur Score</span>
+                        <span id="chrono-high-score" class="text-3xl font-black text-indigo-600">0 pts</span>
+                    </div>
+                    <div>
+                        <button onclick="startChronoGame()" class="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg rounded-2xl shadow-lg shadow-emerald-200 transition transform active:scale-95">
+                            <i class="fa-solid fa-play mr-2"></i> Lancer le Défi !
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Game Screen -->
+                <div id="chrono-game-screen" class="hidden space-y-6">
+                    <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
+                        <div class="text-left">
+                            <span class="text-xs text-slate-400 font-bold block">TEMPS</span>
+                            <span id="chrono-timer" class="text-2xl font-black text-rose-500">60s</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 font-bold block">SCORE</span>
+                            <span id="chrono-score" class="text-2xl font-black text-emerald-500">0</span>
+                        </div>
+                    </div>
+
+                    <div id="chrono-equation" class="text-5xl font-black text-slate-800 py-4">
+                        7 × 8
+                    </div>
+
+                    <div id="chrono-input-display" class="text-3xl font-bold text-indigo-600 h-10">
+                        <span id="chrono-user-input" class="border-b-4 border-indigo-500 min-w-[80px] inline-block px-2">_</span>
+                    </div>
+
+                    <!-- Chrono Keypad -->
+                    <div class="max-w-xs mx-auto grid grid-cols-3 gap-2">
+                        <button onclick="appendChronoNum(1)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">1</button>
+                        <button onclick="appendChronoNum(2)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">2</button>
+                        <button onclick="appendChronoNum(3)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">3</button>
+                        <button onclick="appendChronoNum(4)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">4</button>
+                        <button onclick="appendChronoNum(5)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">5</button>
+                        <button onclick="appendChronoNum(6)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">6</button>
+                        <button onclick="appendChronoNum(7)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">7</button>
+                        <button onclick="appendChronoNum(8)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">8</button>
+                        <button onclick="appendChronoNum(9)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">9</button>
+                        <button onclick="clearChronoNum()" class="key-btn bg-rose-100 text-rose-600 font-bold text-lg py-3 rounded-xl"><i class="fa-solid fa-delete-left"></i></button>
+                        <button onclick="appendChronoNum(0)" class="key-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xl py-3 rounded-xl">0</button>
+                        <button onclick="submitChronoAnswer()" class="key-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl py-3 rounded-xl"><i class="fa-solid fa-check"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-trophies" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl card-glow border border-sky-100">
+                <div class="text-center max-w-md mx-auto mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800">Tes Succès & Badges</h2>
+                    <p class="text-slate-500 text-sm mt-1">Réponds correctement aux questions pour maîtriser chaque table de multiplication !</p>
+                </div>
+
+                <!-- Badges Grid 1 to 12 -->
+                <div id="trophies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <!-- Dynamic badges rendered via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const state = {
+            activeTab: 'learn',
+            selectedLearnTable: 1,
+            soundEnabled: true,
+            totalStars: parseInt(localStorage.getItem('stars') || '0'),
+            highScoreChrono: parseInt(localStorage.getItem('highScoreChrono') || '0'),
+            // Track mastered tables: { 1: 10, 2: 5, ... } correct answers
+            tableStats: JSON.parse(localStorage.getItem('tableStats') || '{}'),
+            quizSelectedTables: [1, 2, 3, 4, 5],
+            currentQuiz: {
+                a: 1,
+                b: 1,
+                answer: '',
+                streak: 0
+            },
+            chrono: {
+                active: false,
+                timeLeft: 60,
+                score: 0,
+                timerId: null,
+                a: 1,
+                b: 1,
+                answer: ''
+            }
+        };
+
+        // Initialize tableStats default values
+        for (let i = 1; i <= 12; i++) {
+            if (!(i in state.tableStats)) {
+                state.tableStats[i] = 0;
+            }
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'fanfare') {
+                    // Confetti sound
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        g.gain.setValueAtTime(0.15, now + idx * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+                        o.start(now + idx * 0.08);
+                        o.stop(now + idx * 0.08 + 0.2);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio not supported or restricted:", e);
+            }
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (state.soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+            }
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            
+            // Highlight Tab Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 shadow-sm';
+            });
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.className = 'tab-btn px-5 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-200';
+
+            // Show Content View
+            document.querySelectorAll('.tab-content').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+
+            if (tabName === 'quiz' && !state.currentQuiz.a) {
+                nextQuizQuestion();
+            }
+        }
+
+        function renderLearnMode() {
+            // Render Table Pill Buttons (1-12)
+            const selectorContainer = document.getElementById('table-selector-learn');
+            selectorContainer.innerHTML = '';
+
+            for (let i = 1; i <= 12; i++) {
+                const btn = document.createElement('button');
+                const isSelected = i === state.selectedLearnTable;
+                btn.className = `px-3.5 py-1.5 rounded-xl font-bold text-sm transition btn-bounce ${
+                    isSelected 
+                        ? 'bg-indigo-600 text-white shadow-md' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`;
+                btn.innerText = `Table de ${i}`;
+                btn.onclick = () => {
+                    state.selectedLearnTable = i;
+                    renderLearnMode();
+                };
+                selectorContainer.appendChild(btn);
+            }
+
+            // Render Multiplication Cards for Selected Table
+            const cardsContainer = document.getElementById('table-cards-container');
+            cardsContainer.innerHTML = '';
+
+            const n = state.selectedLearnTable;
+            for (let i = 1; i <= 12; i++) {
+                const res = n * i;
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-3 rounded-xl flex items-center justify-between cursor-pointer transition text-slate-700 font-bold group';
+                card.onclick = () => showVisualRepresentation(n, i);
+
+                card.innerHTML = `
+                    <span class="text-base group-hover:text-indigo-600">${n} × ${i}</span>
+                    <span class="text-lg font-black text-indigo-600 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">${res}</span>
+                `;
+                cardsContainer.appendChild(card);
+            }
+
+            // Default Visual Load (n x 1)
+            showVisualRepresentation(n, 1);
+        }
+
+        function showVisualRepresentation(a, b) {
+            const titleEl = document.getElementById('visual-title');
+            const gridEl = document.getElementById('visual-grid');
+            
+            titleEl.innerText = `${a} × ${b} = ${a * b}`;
+            gridEl.innerHTML = '';
+
+            // Generate matrix representation
+            for (let row = 0; row < b; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex gap-1 w-full justify-center my-0.5';
+                for (let col = 0; col < a; col++) {
+                    const star = document.createElement('i');
+                    star.className = 'fa-solid fa-star text-amber-400 text-sm sm:text-base transform transition hover:scale-125';
+                    rowDiv.appendChild(star);
+                }
+                gridEl.appendChild(rowDiv);
+            }
+        }
+
+        function renderQuizTableCheckboxes() {
+            const container = document.getElementById('quiz-table-checkboxes');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 12; i++) {
+                const isChecked = state.quizSelectedTables.includes(i);
+                const label = document.createElement('label');
+                label.className = `cursor-pointer px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition select-none ${
+                    isChecked 
+                        ? 'bg-indigo-50 border-indigo-300 text-indigo-700' 
+                        : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                }`;
+                
+                label.innerHTML = `
+                    <input type="checkbox" class="hidden" ${isChecked ? 'checked' : ''} onchange="toggleQuizTable(${i})">
+                    <span>Table de ${i}</span>
+                `;
+                container.appendChild(label);
+            }
+        }
+
+        function toggleQuizTable(num) {
+            if (state.quizSelectedTables.includes(num)) {
+                if (state.quizSelectedTables.length > 1) {
+                    state.quizSelectedTables = state.quizSelectedTables.filter(t => t !== num);
+                }
+            } else {
+                state.quizSelectedTables.push(num);
+            }
+            renderQuizTableCheckboxes();
+        }
+
+        function selectAllQuizTables(selectAll) {
+            if (selectAll) {
+                state.quizSelectedTables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            } else {
+                state.quizSelectedTables = [1];
+            }
+            renderQuizTableCheckboxes();
+        }
+
+        function nextQuizQuestion() {
+            if (state.quizSelectedTables.length === 0) {
+                state.quizSelectedTables = [1];
+            }
+            // Pick a random table from user selections
+            const a = state.quizSelectedTables[Math.floor(Math.random() * state.quizSelectedTables.length)];
+            const b = Math.floor(Math.random() * 12) + 1;
+
+            state.currentQuiz.a = a;
+            state.currentQuiz.b = b;
+            state.currentQuiz.answer = '';
+
+            document.getElementById('quiz-equation').innerText = `${a} × ${b}`;
+            updateQuizAnswerDisplay();
+        }
+
+        function appendNum(num) {
+            if (state.currentQuiz.answer.length < 3) {
+                state.currentQuiz.answer += num;
+                updateQuizAnswerDisplay();
+            }
+        }
+
+        function clearNum() {
+            state.currentQuiz.answer = '';
+            updateQuizAnswerDisplay();
+        }
+
+        function updateQuizAnswerDisplay() {
+            const el = document.getElementById('user-input-text');
+            el.innerText = state.currentQuiz.answer || '_';
+        }
+
+        function submitQuizAnswer() {
+            if (!state.currentQuiz.answer) return;
+
+            const userAns = parseInt(state.currentQuiz.answer);
+            const expected = state.currentQuiz.a * state.currentQuiz.b;
+
+            const feedbackPill = document.getElementById('quiz-feedback-pill');
+
+            if (userAns === expected) {
+                // Correct!
+                playSound('correct');
+                state.currentQuiz.streak++;
+                addStars(1);
+
+                // Track table mastery stats
+                const tableNum = state.currentQuiz.a;
+                state.tableStats[tableNum] = (state.tableStats[tableNum] || 0) + 1;
+                saveData();
+
+                feedbackPill.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 block';
+                feedbackPill.innerText = 'Bravo ! 🎉';
+
+                if (state.currentQuiz.streak % 5 === 0) {
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                    playSound('fanfare');
+                }
+            } else {
+                // Wrong
+                playSound('wrong');
+                state.currentQuiz.streak = 0;
+
+                feedbackPill.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 block';
+                feedbackPill.innerText = `Oups ! ${state.currentQuiz.a} × ${state.currentQuiz.b} = ${expected}`;
+            }
+
+            document.getElementById('quiz-streak').innerText = `Série : ${state.currentQuiz.streak}`;
+            
+            setTimeout(() => {
+                feedbackPill.classList.add('hidden');
+            }, 2500);
+
+            nextQuizQuestion();
+        }
+
+        function skipQuestion() {
+            state.currentQuiz.streak = 0;
+            document.getElementById('quiz-streak').innerText = `Série : 0`;
+            nextQuizQuestion();
+        }
+
+        function startChronoGame() {
+            state.chrono.active = true;
+            state.chrono.timeLeft = 60;
+            state.chrono.score = 0;
+            state.chrono.answer = '';
+
+            document.getElementById('chrono-start-screen').classList.add('hidden');
+            document.getElementById('chrono-game-screen').classList.remove('hidden');
+
+            document.getElementById('chrono-score').innerText = '0';
+            document.getElementById('chrono-timer').innerText = '60s';
+
+            nextChronoQuestion();
+
+            state.chrono.timerId = setInterval(() => {
+                state.chrono.timeLeft--;
+                document.getElementById('chrono-timer').innerText = `${state.chrono.timeLeft}s`;
+
+                if (state.chrono.timeLeft <= 0) {
+                    endChronoGame();
+                }
+            }, 1000);
+        }
+
+        function nextChronoQuestion() {
+            state.chrono.a = Math.floor(Math.random() * 12) + 1;
+            state.chrono.b = Math.floor(Math.random() * 12) + 1;
+            state.chrono.answer = '';
+
+            document.getElementById('chrono-equation').innerText = `${state.chrono.a} × ${state.chrono.b}`;
+            updateChronoDisplay();
+        }
+
+        function appendChronoNum(num) {
+            if (state.chrono.answer.length < 3) {
+                state.chrono.answer += num;
+                updateChronoDisplay();
+            }
+        }
+
+        function clearChronoNum() {
+            state.chrono.answer = '';
+            updateChronoDisplay();
+        }
+
+        function updateChronoDisplay() {
+            document.getElementById('chrono-user-input').innerText = state.chrono.answer || '_';
+        }
+
+        function submitChronoAnswer() {
+            if (!state.chrono.answer) return;
+
+            const userAns = parseInt(state.chrono.answer);
+            const expected = state.chrono.a * state.chrono.b;
+
+            if (userAns === expected) {
+                playSound('correct');
+                state.chrono.score += 10;
+                document.getElementById('chrono-score').innerText = state.chrono.score;
+            } else {
+                playSound('wrong');
+            }
+
+            nextChronoQuestion();
+        }
+
+        function endChronoGame() {
+            clearInterval(state.chrono.timerId);
+            state.chrono.active = false;
+
+            playSound('fanfare');
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            if (state.chrono.score > state.highScoreChrono) {
+                state.highScoreChrono = state.chrono.score;
+                localStorage.setItem('highScoreChrono', state.highScoreChrono);
+                document.getElementById('chrono-high-score').innerText = `${state.highScoreChrono} pts`;
+            }
+
+            // Give bonus stars based on score
+            const bonusStars = Math.floor(state.chrono.score / 20);
+            if (bonusStars > 0) {
+                addStars(bonusStars);
+            }
+
+            alert(`Temps écoulé ! ⏱️\nTon score final : ${state.chrono.score} points.\nTu gagnes ${bonusStars} étoile(s) bonus !`);
+
+            document.getElementById('chrono-start-screen').classList.remove('hidden');
+            document.getElementById('chrono-game-screen').classList.add('hidden');
+        }
+
+        function renderTrophies() {
+            const grid = document.getElementById('trophies-grid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= 12; i++) {
+                const count = state.tableStats[i] || 0;
+                const isMastered = count >= 10; // Mastered if 10 correct answers in quiz
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border text-center transition flex flex-col items-center justify-between ${
+                    isMastered 
+                        ? 'bg-gradient-to-b from-amber-50 to-orange-50 border-amber-200 text-slate-800' 
+                        : 'bg-slate-50 border-slate-200 text-slate-400 opacity-75'
+                }`;
+
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                        isMastered ? 'bg-amber-400 text-white shadow-md text-xl' : 'bg-slate-200 text-slate-400 text-lg'
+                    }">
+                        <i class="fa-solid ${isMastered ? 'fa-award' : 'fa-lock'}"></i>
+                    </div>
+                    <div class="font-bold text-sm text-slate-700">Table du ${i}</div>
+                    <div class="text-xs mt-1 text-slate-500">
+                        ${isMastered ? '🏆 Maîtrisée !' : `${count}/10 réussites`}
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function addStars(num) {
+            state.totalStars += num;
+            document.getElementById('total-stars').innerText = state.totalStars;
+            localStorage.setItem('stars', state.totalStars);
+            renderTrophies();
+        }
+
+        function saveData() {
+            localStorage.setItem('tableStats', JSON.stringify(state.tableStats));
+            renderTrophies();
+        }
+
+        // Global Keyboard Event Listener for PC Keyboards
+        document.addEventListener('keydown', (e) => {
+            if (state.activeTab === 'quiz') {
+                if (e.key >= '0' && e.key <= '9') {
+                    appendNum(parseInt(e.key));
+                } else if (e.key === 'Backspace') {
+                    clearNum();
+                } else if (e.key === 'Enter') {
+                    submitQuizAnswer();
+                }
+            } else if (state.activeTab === 'chrono' && state.chrono.active) {
+                if (e.key >= '0' && e.key <= '9') {
+                    appendChronoNum(parseInt(e.key));
+                } else if (e.key === 'Backspace') {
+                    clearChronoNum();
+                } else if (e.key === 'Enter') {
+                    submitChronoAnswer();
+                }
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('total-stars').innerText = state.totalStars;
+            document.getElementById('chrono-high-score').innerText = `${state.highScoreChrono} pts`;
+            
+            renderLearnMode();
+            renderQuizTableCheckboxes();
+            nextQuizQuestion(); // Prépare le premier calcul dès le chargement
+            renderTrophies();
+        };
+    </script>
+</body>
+</html>
