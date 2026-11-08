@@ -11,4 +11,3 @@ tagline: Divers outils de révision
 
 ## Mathématiques
 * 08.11.2026 : [Tables de multiplication](table_multiplication.html)
-***
